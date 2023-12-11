@@ -32,7 +32,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
         will be ignored during the creation, defaults to False.
         :param request: Optional FastAPI request that
         triggered the operation, defaults to None.
-        :raises UserAlreadyExists: A user already exists with the same e-mail.
+        :raises UserAlreadyExists: A user already exists with the same e-mail or nickname.
         :return: A new user.
         """
         await self.validate_password(user_create.password, user_create)
