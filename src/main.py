@@ -1,14 +1,15 @@
 from fastapi import FastAPI, Depends
 from pymongo import MongoClient
 
-from auth.auth import auth_backend
-from auth.manager import get_user_manager
-from auth.schemas import UserRead, UserCreate
-from routes.routes import router
+from src.auth.base_config import auth_backend
+from src.auth.manager import get_user_manager
+from src.auth.schemas import UserRead, UserCreate
+from src.questions.routes import router
 from fastapi import FastAPI
 from fastapi_users import FastAPIUsers
-from config import DB_HOST, DB_PORT_MONGO
-from auth.database import User
+from src.config import DB_HOST, DB_PORT_MONGO
+from src.auth.models import User
+
 
 client = MongoClient(DB_HOST, int(DB_PORT_MONGO))
 app = FastAPI()
