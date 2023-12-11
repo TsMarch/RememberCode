@@ -21,21 +21,7 @@ fastapi_users = FastAPIUsers[User, int](
 )
 
 
-@app.on_event("startup")
-def startup_db_client():
-    app.mongodb_client = client
-    app.database = app.mongodb_client["appDB"]
-    series_collection = app.database["series"]
-
-
-@app.on_event("shutdown")
-def shutdown_db_client():
-    client.close()
-
-
 app.include_router(router, tags=["questions"], prefix="/question")
-
-
 
 app.include_router(
     fastapi_users.get_auth_router(auth_backend),
