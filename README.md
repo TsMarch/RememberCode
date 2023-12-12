@@ -1,2 +1,2 @@
 # DevInterviewProject
-Бэкенд часть для приложения IOS приложения InterviewApp (рабочее название). 
+Бэкенд часть для IOS приложения InterviewApp (рабочее название). 
