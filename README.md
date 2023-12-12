@@ -3,3 +3,5 @@
 
 # Стек
 Python 3.11, FastAPI, SQLAlchemy, PostgreSQL, MongoDB.
+
+# Work in progress
