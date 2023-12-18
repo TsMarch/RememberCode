@@ -4,16 +4,15 @@ from src.auth.base_config import auth_backend, fastapi_users
 from src.auth.schemas import UserRead, UserCreate
 
 from src.python_questions.routes import router as python_router
-from src.python_questions.routes import client
+from src.python_questions.database import initiate_database
+
 
 app = FastAPI(title="InterviewApp")
 
 
 @app.on_event("startup")
-def startup_db_client():
-    app.mongodb_client = client
-    app.database = app.mongodb_client["appDB"]
-    series_collection = app.database["series"]
+async def start_db():
+    await initiate_database()
 
 
 app.include_router(fastapi_users.get_auth_router(auth_backend),

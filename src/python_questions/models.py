@@ -1,9 +1,10 @@
 from typing import Optional, List
 
 from pydantic import ConfigDict, BaseModel, Field
+from beanie import Document
 
 
-class QuestionModel(BaseModel):
+class Question(Document):
     """
     Модель для списка вопросов
     """
@@ -11,4 +12,6 @@ class QuestionModel(BaseModel):
     question: str = Field(...)
     answer: str = Field(...)
 
+    class Settings:
+        name = "series"
 
