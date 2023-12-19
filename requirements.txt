@@ -3,7 +3,6 @@ asyncpg==0.28.0
 psycopg==3.1.10
 psycopg-binary==3.1.10
 sqlalchemy==2.0.20
-
 fastapi==0.103.1
 pydantic==2.3.0
 pydantic-settings==2.0.3
@@ -12,3 +11,4 @@ python-dotenv==1.0.0
 pymongo==4.6.1
 motor==3.3.2
 beanie==1.23.6
+gunicorn
