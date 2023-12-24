@@ -1,11 +1,12 @@
 from fastapi_users import schemas
+import datetime
+import uuid
 from pydantic import EmailStr
 
-class UserRead(schemas.BaseUser[int]):
 
-    id: int
-    email: EmailStr
+class UserRead(schemas.BaseUser[uuid.UUID]):
     nickname: str
+    email: EmailStr
     user_level: str
 
     class Config:
@@ -14,8 +15,8 @@ class UserRead(schemas.BaseUser[int]):
 
 class UserCreate(schemas.BaseUserCreate):
     email: EmailStr
-    password: str
     nickname: str
+    password: str
     user_level: str
 
 

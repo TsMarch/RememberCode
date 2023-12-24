@@ -1,6 +1,9 @@
+import uuid
+import redis.asyncio
 from fastapi_users import FastAPIUsers
-from fastapi_users.authentication import CookieTransport, AuthenticationBackend
-from fastapi_users.authentication import JWTStrategy
+
+from fastapi_users.authentication import AuthenticationBackend, RedisStrategy
+
 
 from src.auth.manager import get_user_manager
 from src.auth.models import User
@@ -9,24 +12,26 @@ from src.config import DB_SECRET_AUTH
 
 from fastapi_users.authentication import BearerTransport
 
-bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
+bearer_transport = BearerTransport(tokenUrl="auth/redis/login")
+
+redis = redis.asyncio.from_url("redis://localhost:6379", decode_responses=True)
 
 SECRET = DB_SECRET_AUTH
 
 
-def get_jwt_strategy() -> JWTStrategy:
-    return JWTStrategy(secret=SECRET, lifetime_seconds=3600)
+def get_redis_strategy() -> RedisStrategy:
+    return RedisStrategy(redis, lifetime_seconds=None)
 
 
 auth_backend = AuthenticationBackend(
-    name="jwt",
+    name="redis",
     transport=bearer_transport,
-    get_strategy=get_jwt_strategy,
+    get_strategy=get_redis_strategy,
 )
 
-fastapi_users = FastAPIUsers[User, int](
+fastapi_users = FastAPIUsers[User, uuid.UUID](
     get_user_manager,
     [auth_backend],
 )
 
-current_user = fastapi_users.current_user()
+current_active_user = fastapi_users.current_user(active=True)

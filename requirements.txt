@@ -13,3 +13,4 @@ motor==3.3.2
 beanie==1.23.6
 fastapi-users[sqlalchemy]
 gunicorn
+redis==5.0.1
