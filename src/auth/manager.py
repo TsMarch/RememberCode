@@ -1,7 +1,8 @@
+import uuid
 from typing import Optional
 
 from fastapi import Depends, Request
-from fastapi_users import BaseUserManager, IntegerIDMixin, exceptions, models, schemas
+from fastapi_users import BaseUserManager, IntegerIDMixin, exceptions, models, schemas, UUIDIDMixin
 
 from src.auth.models import User
 from src.auth.utils import get_user_db
@@ -10,7 +11,7 @@ from src.config import DB_SECRET_AUTH
 SECRET = DB_SECRET_AUTH
 
 
-class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
+class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     reset_password_token_secret = SECRET
     verification_token_secret = SECRET
 
