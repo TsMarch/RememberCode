@@ -1,0 +1,37 @@
+version: "3.7"
+
+services:
+  db:
+    image: postgres:16.1
+    container_name: db_app
+    command: -p 5435
+    expose:
+      - 5435
+    env_file:
+      - .env-non-dev
+
+  redis:
+    image: redis:latest
+    container_name: redis_app
+    command: redis-server
+    ports:
+      - "5370:6379"
+    expose:
+      - 6379
+    environment:
+      - REDIS_PORT=5370
+      - REDIS_DATABASES=16
+
+
+  app:
+    build:
+      context: .
+    env_file:
+      - .env-non-dev
+    container_name: fastapi_app
+    command: ["/fastapi_app/docker/app.sh"]
+    ports:
+      - "9999:8080"
+    depends_on:
+      - db
+      - redis

@@ -6,7 +6,7 @@ from beanie import Document
 
 class Question(Document):
     """
-    Модель для списка вопросов
+    Question model in mongodb
     """
     id: int = Field(alias="_id")
     question: str = Field(...)

@@ -12,11 +12,12 @@ from src.config import DB_SECRET_AUTH
 
 from fastapi_users.authentication import BearerTransport
 
-bearer_transport = BearerTransport(tokenUrl="auth/redis/login")
 
-redis = redis.asyncio.from_url("redis://localhost:6379", decode_responses=True)
+redis = redis.asyncio.from_url("redis://redis:6379", decode_responses=True)
 
-SECRET = DB_SECRET_AUTH
+SECRET = "SECRET"
+
+bearer_transport = BearerTransport(tokenUrl="auth/login")
 
 
 def get_redis_strategy() -> RedisStrategy:
@@ -29,9 +30,7 @@ auth_backend = AuthenticationBackend(
     get_strategy=get_redis_strategy,
 )
 
-fastapi_users = FastAPIUsers[User, uuid.UUID](
-    get_user_manager,
-    [auth_backend],
-)
+
+fastapi_users = FastAPIUsers[User, uuid.UUID](get_user_manager, [auth_backend])
 
 current_active_user = fastapi_users.current_user(active=True)

@@ -3,12 +3,13 @@ from typing import Optional
 
 from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, IntegerIDMixin, exceptions, models, schemas, UUIDIDMixin
+from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 
 from src.auth.models import User
 from src.auth.utils import get_user_db
 from src.config import DB_SECRET_AUTH
 
-SECRET = DB_SECRET_AUTH
+SECRET = "SECRET"
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
@@ -59,5 +60,5 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         return created_user
 
 
-async def get_user_manager(user_db=Depends(get_user_db)):
+async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_user_db)):
     yield UserManager(user_db)
