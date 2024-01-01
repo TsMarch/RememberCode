@@ -24,9 +24,9 @@ async def retrieve_questions() -> List[Question]:
     return questions
 
 
-# async def initiate_database():
-#   client = motor.motor_asyncio.AsyncIOMotorClient(f"mongodb://{DB_HOST}:{DB_PORT_MONGO}")
-#   database = client.appdb
-#   question_collection = database.get_collection("series")
-#   await init_beanie(database=client.get_database("appDB"), document_models=[QuestionModel])
+async def initiate_database():
+    client = motor.motor_asyncio.AsyncIOMotorClient(f"mongodb://{DB_HOST}:{DB_PORT_MONGO}")
+    database = client.appdb
+    question_collection = database.get_collection("series")
+    await init_beanie(database=client.get_database("appDB"), document_models=[Question])
 

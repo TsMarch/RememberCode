@@ -9,14 +9,16 @@ from src.python_questions.database import initiate_database
 
 app = FastAPI(title="InterviewApp")
 
-
+# Authentication router
 app.include_router(fastapi_users.get_auth_router(auth_backend),
-                   prefix="/auth/jwt",
+                   prefix="/auth",
                    tags=["Authentication"])
 
+# Register router
 app.include_router(fastapi_users.get_register_router(UserRead, UserCreate),
                    prefix="/register",
                    tags=["Authentication"])
 
+# Router for retrieving questions from mongodb
 app.include_router(python_router, tags=["python questions"], prefix="/python_questions")
 

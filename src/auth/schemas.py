@@ -1,9 +1,9 @@
+import uuid
 from fastapi_users import schemas
 from pydantic import EmailStr
 
-class UserRead(schemas.BaseUser[int]):
 
-    id: int
+class UserRead(schemas.BaseUser[uuid.UUID]):
     email: EmailStr
     nickname: str
     user_level: str
