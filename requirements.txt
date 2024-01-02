@@ -14,3 +14,4 @@ beanie==1.23.6
 fastapi-users[sqlalchemy]
 gunicorn
 redis==5.0.1
+pymongo

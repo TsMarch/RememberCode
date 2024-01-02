@@ -5,6 +5,10 @@ services:
     image: postgres:16.1
     container_name: db_app
     command: -p 5435
+    expose:
+      - 5435
+    env_file:
+      - .env-non-dev
 
 
   redis:
@@ -23,7 +27,7 @@ services:
       context: .
     env_file:
       - .env-non-dev
-    container_name: fastapi_app
+    container_name: interview_app
     command: ["/fastapi_app/docker/app.sh"]
     ports:
       - "9999:8080"
