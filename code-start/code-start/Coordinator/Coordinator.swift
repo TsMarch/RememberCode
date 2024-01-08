@@ -26,6 +26,7 @@ final class AppCoordinator: NSObject, CoordinatorProtocol {
         //let mainViewController = mainModuleBuilder.build(moduleOutput: self)
         let mainViewController = ViewController()
         mainViewController.presenter.moduleOutputDelegate = self
+        //self.navigationController.pushViewController(mainViewController, animated: true)
         self.navigationController.pushViewController(mainViewController, animated: true)
     }
 
@@ -35,8 +36,15 @@ final class AppCoordinator: NSObject, CoordinatorProtocol {
 
 extension AppCoordinator: MainModuleOutputDelegate {
     func courseBlockTapped(courseName: String) {
-        print("aa")
         let questionViewController = QuestionViewController()
+//        self.navigationController.definesPresentationContext = true
+//        self.navigationController.providesPresentationContextTransitionStyle = true
+//        questionViewController.definesPresentationContext = true
+//        questionViewController.providesPresentationContextTransitionStyle = true
+//        questionViewController.modalPresentationStyle = .popover
         self.navigationController.pushViewController(questionViewController, animated: true)
+//        guard let vc = self.navigationController.topViewController else { return }
+//        questionViewController.modalPresentationStyle = .overFullScreen
+//       vc.present(questionViewController, animated: true)
     }
 }

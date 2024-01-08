@@ -9,10 +9,18 @@ import Foundation
 import UIKit
 
 class QuestionTableView: UIView {
-    weak var delegate: QuestionTableInputDelegate?
+    weak var delegate: QuestionTableOutputDelegate?
     
-    let tableView = UITableView.init(frame: .zero, style: .plain)
+    let tableView = UITableView(frame: .zero, style: .plain)
 
+    private lazy var questionLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "adasdsadsad"
+        label.font = UIFont.systemFont(ofSize: 17)
+        label.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        return label
+    }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -21,7 +29,9 @@ class QuestionTableView: UIView {
     }
 
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        super.init(coder: coder)
+        setupTableView()
+        setupConstraints()
     }
 
     private func setupTableView() {
@@ -30,45 +40,71 @@ class QuestionTableView: UIView {
         tableView.register(QuestionCell.self, forCellReuseIdentifier: QuestionCell.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.isPagingEnabled = true
-        tableView.layer.borderWidth = 10
-        tableView.backgroundColor = .red
-        tableView.rowHeight = 100
-        tableView.heightAnchor.constraint(equalToConstant: 700).isActive = true
+        tableView.separatorStyle = .none
+        tableView.bounces = false
+        tableView.contentInset = UIEdgeInsets.zero
+        //tableView.layer.borderWidth = 10
+        tableView.contentInsetAdjustmentBehavior = .never
+        tableView.allowsSelection = false
+        tableView.rowHeight = UIScreen.main.bounds.height
+        tableView.estimatedRowHeight = UIScreen.main.bounds.height
+        tableView.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width).isActive = true
+        tableView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height).isActive = true
+
     }
 
     private func setupConstraints() {
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .white
-        layer.borderWidth = 10
         addSubview(tableView)
 
         NSLayoutConstraint.activate([
-//            tableView.centerXAnchor.constraint(equalTo: layoutMarginsGuide.centerXAnchor),
-//            tableView.centerYAnchor.constraint(equalTo: layoutMarginsGuide.centerYAnchor)
-           tableView.topAnchor.constraint(equalTo: self.topAnchor),
-           tableView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
+           tableView.topAnchor.constraint(equalTo: topAnchor),
+           tableView.leadingAnchor.constraint(equalTo: leadingAnchor),
+           tableView.trailingAnchor.constraint(equalTo: trailingAnchor),
+           tableView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
 
     }
-    
 }
 
 extension QuestionTableView: UITableViewDelegate & UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: QuestionCell.identifier, for: indexPath) as? QuestionCell else { fatalError() }
-        cell.backgroundColor = .blue
+        //cell.backgroundColor = .blue
 
         if let item = delegate?.configureCell(index: indexPath.row) {
-            cell.configure(item)
+            cell.configure(item, indexPath.row)
+            cell.delegate = self
         }
         return cell
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print(delegate?.countQA())
         return delegate?.countQA() ?? 0
+    }
+}
+
+extension QuestionTableView: QuestionCellDelegate {
+    public func deleteButtonTapped(row: Int) {
+        delegate?.deleteButtonTapped(row: row)
+    }
+
+    public func favouriteButtonTapped(row: Int) {
+        delegate?.favouriteButtonTapped(row: row)
+    }
+    
+
+}
+
+extension QuestionTableView: QuestionTableInputDelegate {
+    public func deleteRow(row: Int) {
+        tableView.deleteRows(at: [IndexPath(row: row, section: 0)], with: .fade)
+        tableView.reloadData()
+    }
+
+    public func reconfigureRow(row: Int) {
+        tableView.reconfigureRows(at: [IndexPath(row: row, section: 0)])
     }
 }
 

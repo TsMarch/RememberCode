@@ -43,5 +43,13 @@ struct QAItem {
         return isFavourite
     }
 
+    public mutating func setIsHidden(state: Bool) {
+        self.isHidden = state
+    }
+
+    public mutating func setIsFavourite(state: Bool) {
+        self.isFavourite = state
+    }
+
 
 }

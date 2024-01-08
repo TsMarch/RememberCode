@@ -26,11 +26,12 @@
 		CA17CB032B293D87004405D6 /* MainModuleBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA17CB022B293D87004405D6 /* MainModuleBuilder.swift */; };
 		CA17CB052B293ED3004405D6 /* MainViewInputDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA17CB042B293ED3004405D6 /* MainViewInputDelegate.swift */; };
 		CA5BE0FA2B479CDE0088BDEA /* QuestionTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA5BE0F92B479CDE0088BDEA /* QuestionTableView.swift */; };
-		CA5BE0FD2B47A0E70088BDEA /* QuestionTableInputDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA5BE0FC2B47A0E70088BDEA /* QuestionTableInputDelegate.swift */; };
+		CA5BE0FD2B47A0E70088BDEA /* QuestionTableOutputDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA5BE0FC2B47A0E70088BDEA /* QuestionTableOutputDelegate.swift */; };
 		CA5BE0FF2B47A1240088BDEA /* QuestionViewPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA5BE0FE2B47A1240088BDEA /* QuestionViewPresenter.swift */; };
 		CA5BE1022B47A6390088BDEA /* QuestionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA5BE1012B47A6390088BDEA /* QuestionViewController.swift */; };
 		CA5BE1042B47A9AE0088BDEA /* MainModuleOutputDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA5BE1032B47A9AE0088BDEA /* MainModuleOutputDelegate.swift */; };
 		CAA5E3E52B47BE46001FE43C /* QuestionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAA5E3E42B47BE46001FE43C /* QuestionCell.swift */; };
+		CACFD3882B4BF6D700F236E9 /* QuestionTableInputDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CACFD3872B4BF6D700F236E9 /* QuestionTableInputDelegate.swift */; };
 		CAF2B7D32B29D820002AB685 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CAF2B7D12B29D820002AB685 /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
 
@@ -75,11 +76,12 @@
 		CA17CB022B293D87004405D6 /* MainModuleBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainModuleBuilder.swift; sourceTree = "<group>"; };
 		CA17CB042B293ED3004405D6 /* MainViewInputDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewInputDelegate.swift; sourceTree = "<group>"; };
 		CA5BE0F92B479CDE0088BDEA /* QuestionTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionTableView.swift; sourceTree = "<group>"; };
-		CA5BE0FC2B47A0E70088BDEA /* QuestionTableInputDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionTableInputDelegate.swift; sourceTree = "<group>"; };
+		CA5BE0FC2B47A0E70088BDEA /* QuestionTableOutputDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionTableOutputDelegate.swift; sourceTree = "<group>"; };
 		CA5BE0FE2B47A1240088BDEA /* QuestionViewPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionViewPresenter.swift; sourceTree = "<group>"; };
 		CA5BE1012B47A6390088BDEA /* QuestionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionViewController.swift; sourceTree = "<group>"; };
 		CA5BE1032B47A9AE0088BDEA /* MainModuleOutputDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainModuleOutputDelegate.swift; sourceTree = "<group>"; };
 		CAA5E3E42B47BE46001FE43C /* QuestionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = QuestionCell.swift; path = ../../../../../../Downloads/QuestionCell.swift; sourceTree = "<group>"; };
+		CACFD3872B4BF6D700F236E9 /* QuestionTableInputDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionTableInputDelegate.swift; sourceTree = "<group>"; };
 		CAF2B7D22B29D820002AB685 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = "code-start/Base.lproj/LaunchScreen.storyboard"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -240,7 +242,8 @@
 		CA5BE0FB2B479FCC0088BDEA /* Delegate */ = {
 			isa = PBXGroup;
 			children = (
-				CA5BE0FC2B47A0E70088BDEA /* QuestionTableInputDelegate.swift */,
+				CA5BE0FC2B47A0E70088BDEA /* QuestionTableOutputDelegate.swift */,
+				CACFD3872B4BF6D700F236E9 /* QuestionTableInputDelegate.swift */,
 			);
 			path = Delegate;
 			sourceTree = "<group>";
@@ -394,9 +397,10 @@
 				CA17CAEE2B1E41E8004405D6 /* MainView.swift in Sources */,
 				CA17CB032B293D87004405D6 /* MainModuleBuilder.swift in Sources */,
 				CA17CAEC2B1E40CE004405D6 /* CourseItem.swift in Sources */,
+				CACFD3882B4BF6D700F236E9 /* QuestionTableInputDelegate.swift in Sources */,
 				CA17CAB72B1E3EB0004405D6 /* AppDelegate.swift in Sources */,
 				CA17CAB92B1E3EB0004405D6 /* SceneDelegate.swift in Sources */,
-				CA5BE0FD2B47A0E70088BDEA /* QuestionTableInputDelegate.swift in Sources */,
+				CA5BE0FD2B47A0E70088BDEA /* QuestionTableOutputDelegate.swift in Sources */,
 				CAA5E3E52B47BE46001FE43C /* QuestionCell.swift in Sources */,
 				CA17CB012B2937C6004405D6 /* MainViewOutputDelegate.swift in Sources */,
 				CA5BE1022B47A6390088BDEA /* QuestionViewController.swift in Sources */,
@@ -510,7 +514,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -564,7 +568,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -589,6 +593,7 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -617,6 +622,7 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

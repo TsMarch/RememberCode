@@ -9,13 +9,14 @@ import Foundation
 import UIKit
 
 class QuestionViewController: UIViewController {
-    private lazy var tableView = QuestionTableView()
+    let tableView = QuestionTableView()
     let presenter = QuestionViewPresenter()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view = tableView
         self.tableView.delegate = presenter
+        presenter.delegate = self.tableView
+        self.becomeFirstResponder()
     }
-
 }
