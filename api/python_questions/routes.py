@@ -1,8 +1,8 @@
 from pymongo import MongoClient
 from bson.json_util import loads, dumps
-from src.config import DB_HOST, DB_PORT_MONGO
-from src.python_questions.models import Question
-from src.python_questions.database import retrieve_questions
+from api.config import DB_HOST, DB_PORT_MONGO
+from api.python_questions.models import Question
+from api.python_questions.database import retrieve_questions
 from fastapi import APIRouter, Request, Body
 
 

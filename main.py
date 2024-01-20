@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 
 
-from src.python_questions.routes import router as python_router
-from src.python_questions.database import initiate_database
-from src.auth.auth_config import router as register_router
+from api.python_questions.routes import router as python_router
+from api.python_questions.database import initiate_database
+from api.auth.auth_config import router as register_router
 
 app = FastAPI(title="InterviewApp")
 
