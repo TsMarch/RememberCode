@@ -13,3 +13,4 @@ router = APIRouter()
 async def get_questions():
     questions = await retrieve_questions()
     return questions
+
