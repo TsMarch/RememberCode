@@ -1,11 +1,32 @@
-from fastapi import FastAPI
-
-
+from fastapi import FastAPI, Depends
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
+from api.auth import utils
+from api.database import get_async_session
 from api.python_questions.routes import router as python_router
 from api.python_questions.database import initiate_database
 from api.auth.auth_config import router as register_router
+from api.auth.schemas import User
+
 
 app = FastAPI(title="InterviewApp")
+
+@app.post("/registr/")
+async def add_user(user: User, session: AsyncSession = Depends(get_async_session)):
+    user = await utils.add_user(session, user.nickname, user.email, user.hashed_password)
+    try:
+        await session.commit()
+        return user
+    except IntegrityError as ex:
+        await session.rollback()
+        raise IntegrityError("This user already exists")
+
+
+# PostgreSQl test connection
+@app.get("/check_connection", response_model=list[User])
+async def get_connection_status(session: AsyncSession = Depends(get_async_session)):
+    check = await utils.get_conn(session)
+    return check
 
 
 # MongoDB startup connection

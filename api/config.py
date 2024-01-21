@@ -10,3 +10,5 @@ DB_USER = os.environ.get("DB_USER")
 DB_PASS = os.environ.get("DB_PASS")
 DB_PORT_MONGO = os.environ.get("DB_PORT_MONGO")
 DB_SECRET_AUTH = os.environ.get("AUTH_SECRET")
+
+SECRET_KEY = os.environ.get("SECRET_KEY")

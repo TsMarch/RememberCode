@@ -15,3 +15,4 @@ fastapi-users[sqlalchemy]
 gunicorn
 redis==5.0.1
 pymongo
+jose
