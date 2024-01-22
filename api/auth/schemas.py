@@ -9,6 +9,12 @@ class User(BaseModel):
     user_level: str
 
 
+class UserVerify(BaseModel):
+    nickname: str
+    email: EmailStr
+    user_level: str
+
+
 class UserRead(BaseModel):
     nickname: str
 

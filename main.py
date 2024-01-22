@@ -6,7 +6,7 @@ from api.database import get_async_session
 from api.python_questions.routes import router as python_router
 from api.python_questions.database import initiate_database
 from api.auth.auth_config import router as register_router
-from api.auth.schemas import User, UserRead
+from api.auth.schemas import User, UserRead, UserVerify
 
 
 app = FastAPI(title="InterviewApp")
@@ -25,7 +25,7 @@ async def add_user(user: User, session: AsyncSession = Depends(get_async_session
 
 
 # Get user by nickname
-@app.post("/get_user/", response_model=list[User])
+@app.post("/get_user/", response_model=list[UserVerify])
 async def get_user_by_nickname(user: UserRead, session: AsyncSession = Depends(get_async_session)):
     check = await utils.get_user_by_nickname(session, user.nickname)
     return check
