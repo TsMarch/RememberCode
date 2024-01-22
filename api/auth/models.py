@@ -13,7 +13,7 @@ class Base(DeclarativeBase):
 class User(Base):
     __tablename__ = "reg-users"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    id: Mapped[uuid.UUID] = mapped_column(default=uuid.uuid4, primary_key=True, index=True)
     nickname: Mapped[str] = mapped_column(String(length=20), unique=True, nullable=False)
     email: Mapped[EmailStr] = mapped_column(String(length=320), unique=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(String(length=1024), nullable=False)
