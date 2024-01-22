@@ -7,3 +7,16 @@ class User(BaseModel):
     email: EmailStr
     hashed_password: str
     user_level: str
+
+
+class UserRead(BaseModel):
+    nickname: str
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    nickname: str

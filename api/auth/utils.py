@@ -8,8 +8,9 @@ from api.auth.models import User
 from api.database import get_async_session
 from api.auth.auth_config import get_password_hash
 
-async def get_conn(session: AsyncSession) -> list[User]:
-    result = await session.execute(select(User).order_by(User.nickname.desc()).limit(20))
+
+async def get_conn(session: AsyncSession):
+    result = await session.execute(select(User))
     return result.all()
 
 
@@ -18,5 +19,7 @@ async def add_user(session: AsyncSession, nickname: str, email: str, password: s
     session.add(new_user)
     return new_user
 
-async def get_user_db(session: AsyncSession = Depends(get_async_session)):
-    yield SQLAlchemyUserDatabase(session, User)
+
+async def get_user_by_nickname(session: AsyncSession, nickname: str):
+    result = await session.execute(select(User).where(User.nickname == nickname))
+    return result.scalars()

@@ -6,12 +6,14 @@ from api.database import get_async_session
 from api.python_questions.routes import router as python_router
 from api.python_questions.database import initiate_database
 from api.auth.auth_config import router as register_router
-from api.auth.schemas import User
+from api.auth.schemas import User, UserRead
 
 
 app = FastAPI(title="InterviewApp")
 
-@app.post("/registr/")
+
+# Registration form
+@app.post("/registration/")
 async def add_user(user: User, session: AsyncSession = Depends(get_async_session)):
     user = await utils.add_user(session, user.nickname, user.email, user.hashed_password)
     try:
@@ -22,14 +24,14 @@ async def add_user(user: User, session: AsyncSession = Depends(get_async_session
         raise IntegrityError("This user already exists")
 
 
-# PostgreSQl test connection
-@app.get("/check_connection", response_model=list[User])
-async def get_connection_status(session: AsyncSession = Depends(get_async_session)):
-    check = await utils.get_conn(session)
+# Get user by nickname
+@app.post("/get_user/", response_model=list[User])
+async def get_user_by_nickname(user: UserRead, session: AsyncSession = Depends(get_async_session)):
+    check = await utils.get_user_by_nickname(session, user.nickname)
     return check
 
 
-# MongoDB startup connection
+# MongoDB startup connection and test data insertion
 #@app.on_event("startup")
 #async def start_db():
  #   await initiate_database()
