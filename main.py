@@ -3,33 +3,17 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from api.auth import utils
 from api.database import get_async_session
-from api.python_questions.routes import router as python_router
+from api.python_questions.routers import router as python_router
 from api.python_questions.database import initiate_database
 from api.auth.auth_config import router as register_router
 from api.auth.schemas import User, UserRead, UserVerify
+from api.auth.routers import router as auth_router
+
+app = FastAPI(title="RememberCode")
 
 
-app = FastAPI(title="InterviewApp")
-
-
-# Registration form
-@app.post("/registration/")
-async def add_user(user: User, session: AsyncSession = Depends(get_async_session)):
-    user = await utils.add_user(session, user.nickname, user.email, user.hashed_password)
-    try:
-        await session.commit()
-        return user
-    except IntegrityError as ex:
-        await session.rollback()
-        raise IntegrityError("This user already exists")
-
-
-# Get user by nickname
-@app.post("/get_user/", response_model=list[UserVerify])
-async def get_user_by_nickname(user: UserRead, session: AsyncSession = Depends(get_async_session)):
-    check = await utils.get_user_by_nickname(session, user.nickname)
-    return check
-
+# Registration module (look up swagger docs or api/auth/routers)
+app.include_router(auth_router, tags=["Authentication module"])
 
 # MongoDB startup connection and test data insertion
 #@app.on_event("startup")
