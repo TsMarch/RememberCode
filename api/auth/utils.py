@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.auth.models import User
 from api.database import get_async_session
 from api.auth.auth_config import get_password_hash, verify_password
+from sqlalchemy import exc
 
 
 async def get_conn(session: AsyncSession):
@@ -31,5 +32,9 @@ async def get_hashed_password(session: AsyncSession, nickname: str):
 
 
 async def authenticate_user(session: AsyncSession, nickname: str, password: str):
-    get_hash = await get_hashed_password(session, nickname)
-    return get_hash
+    user_check = await get_user_by_nickname(session, nickname)
+    match user_check:
+        case _:
+            get_hash = await get_hashed_password(session, nickname)
+            check_pass = verify_password(password, get_hash)
+            return check_pass
