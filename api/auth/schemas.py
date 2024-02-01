@@ -2,6 +2,15 @@ import uuid
 from pydantic import BaseModel, EmailStr
 
 
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    nickname: str or None = None
+
+
 class User(BaseModel):
     nickname: str
     email: EmailStr
@@ -22,15 +31,6 @@ class UserRead(BaseModel):
 class UserAuth(BaseModel):
     nickname: str
     password: str
-
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
-class TokenData(BaseModel):
-    nickname: str
 
 
 class Hashed(BaseModel):
