@@ -19,6 +19,11 @@ class UserRead(BaseModel):
     nickname: str
 
 
+class UserAuth(BaseModel):
+    nickname: str
+    password: str
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -26,3 +31,7 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     nickname: str
+
+
+class Hashed(BaseModel):
+    hashed_password: str

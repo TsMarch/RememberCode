@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from api.auth.models import User
 from api.database import get_async_session
-from api.auth.auth_config import get_password_hash
+from api.auth.auth_config import get_password_hash, verify_password
 
 
 async def get_conn(session: AsyncSession):
@@ -23,3 +23,13 @@ async def add_user(session: AsyncSession, nickname: str, email: str, password: s
 async def get_user_by_nickname(session: AsyncSession, nickname: str):
     result = await session.execute(select(User).where(User.nickname == nickname))
     return result.scalars()
+
+
+async def get_hashed_password(session: AsyncSession, nickname: str):
+    result = await session.execute(select(User.hashed_password).where(User.nickname == nickname))
+    return result.scalar_one()
+
+
+async def authenticate_user(session: AsyncSession, nickname: str, password: str):
+    get_hash = await get_hashed_password(session, nickname)
+    return get_hash

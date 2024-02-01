@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth import utils
-from api.auth.schemas import UserVerify, UserRead, User
+from api.auth.schemas import UserVerify, UserRead, User, UserAuth, Hashed
 from api.database import get_async_session
 
 router = APIRouter(
@@ -28,3 +28,9 @@ async def add_user(user: User, session: AsyncSession = Depends(get_async_session
 async def get_user_by_nickname(user: UserRead, session: AsyncSession = Depends(get_async_session)):
     check = await utils.get_user_by_nickname(session, user.nickname)
     return check
+
+
+@router.post("/auth_user/")
+async def authenticate_user(user: UserAuth, session: AsyncSession = Depends(get_async_session)):
+    auth = await utils.authenticate_user(session, user.nickname, user.password)
+    return auth
