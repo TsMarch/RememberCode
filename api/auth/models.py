@@ -18,4 +18,4 @@ class User(Base):
     email: Mapped[EmailStr] = mapped_column(String(length=320), unique=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(String(length=1024), nullable=False)
     user_level: Mapped[str] = mapped_column(String(length=20), default="Beginner", nullable=False)
-
+    disabled: Mapped[str] = mapped_column(String, default="False", nullable=False)

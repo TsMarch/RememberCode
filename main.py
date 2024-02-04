@@ -6,7 +6,7 @@ from api.database import get_async_session
 from api.python_questions.routers import router as python_router
 from api.python_questions.database import initiate_database
 from api.auth.auth_config import router as register_router
-from api.auth.schemas import User, UserRead, UserVerify
+
 from api.auth.routers import router as auth_router
 
 app = FastAPI(title="RememberCode")
