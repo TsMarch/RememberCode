@@ -25,6 +25,8 @@ class UserVerify(BaseModel):
 
 class UserRead(BaseModel):
     nickname: str
+    email: EmailStr
+    user_level: str
 
 
 class UserAuth(BaseModel):

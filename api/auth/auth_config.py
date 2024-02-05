@@ -8,7 +8,7 @@ from passlib.context import CryptContext
 
 SECRET_KEY = secret
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 15
 
 router = APIRouter()
 
@@ -24,15 +24,17 @@ def verify_password(password, hashed_password):
     return pwd_context.verify(password, hashed_password)
 
 
-def create_access_token(data: dict, expires_delt: timedelta or None = None):
+def create_access_token(data: dict):
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode = data.copy()
-    if expires_delt:
-        expire = datetime.utcnow() + expires_delt
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
-
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 
+def verify_access_token(token: str):
+    try:
+        decoded_data = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return decoded_data
+    except Exception as e:
+        return None
