@@ -33,6 +33,11 @@ async def get_hashed_password(session: AsyncSession, nickname: str):
     return result.scalar_one()
 
 
+async def get_user_by_id(session: AsyncSession, user_id: str):
+    result = await session.execute(select(UserModel).where(UserModel.id == user_id))
+    return result.scalar_one()
+
+
 async def authenticate_user(session: AsyncSession, nickname: str, password: str):
     user = await get_user_by_nickname(session, nickname)
     if not user:
@@ -40,16 +45,17 @@ async def authenticate_user(session: AsyncSession, nickname: str, password: str)
 
     password_check = verify_password(password, await get_hashed_password(session, nickname))
     if not password_check:
-        raise HTTPException(status_code=400, detail="Inoorrect username or password")
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
 
     return user
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], session: AsyncSession = Depends(get_async_session)):
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)],
+                           session: AsyncSession = Depends(get_async_session)):
     decoded_data = verify_access_token(token)
     if not decoded_data:
         raise HTTPException(status_code=400, detail="Token expired")
-    user = await get_user_by_nickname(session, decoded_data["sub"])
+    user = await get_user_by_id(session, decoded_data["sub"])
     if not user:
         raise HTTPException(status_code=400, detail="No such user")
     return user

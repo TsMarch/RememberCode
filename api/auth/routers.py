@@ -1,5 +1,5 @@
 from typing import Annotated
-
+from fastapi.encoders import jsonable_encoder
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,8 +30,14 @@ async def add_user(user: User, session: AsyncSession = Depends(get_async_session
 
 # Get user by nickname
 @router.post("/get_user/")
-async def get_user_by_nickname(user: UserRead, session: AsyncSession = Depends(get_async_session)):
-    check = await utils.get_user_by_nickname(session, user.nickname)
+async def get_user_by_nickname(nickname: str, session: AsyncSession = Depends(get_async_session)):
+    check = await utils.get_user_by_nickname(session, nickname)
+    return check
+
+
+@router.post("/get_user/id", response_model=UserRead)
+async def get_user_by_id(user_id: str, session: AsyncSession = Depends(get_async_session)):
+    check = await utils.get_user_by_id(session, user_id)
     return check
 
 
@@ -41,7 +47,7 @@ async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()], session: AsyncSession = Depends(get_async_session)
 ):
     user = await authenticate_user(session, form_data.username, form_data.password)
-    access_token = create_access_token(data={"sub": user.nickname})
+    access_token = create_access_token(data={"sub": jsonable_encoder(user.id)})
     return {"access_token": access_token, "token_type": "bearer"}
 
 

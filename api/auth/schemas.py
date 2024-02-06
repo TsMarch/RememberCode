@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from pydantic import BaseModel, EmailStr
 
 
@@ -27,6 +29,7 @@ class UserRead(BaseModel):
     nickname: str
     email: EmailStr
     user_level: str
+    is_premium: bool | None
 
 
 class UserAuth(BaseModel):
