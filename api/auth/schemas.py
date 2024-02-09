@@ -1,3 +1,4 @@
+from typing import Union
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr
@@ -9,33 +10,16 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    nickname: str or None = None
+    id: str | None = None
 
 
 class User(BaseModel):
     nickname: str
     email: EmailStr
     hashed_password: str
-    user_level: str
+    user_level: str | None = None
+    is_premium: bool | None = None
+    disabled: bool | None = None
 
 
-class UserVerify(BaseModel):
-    nickname: str
-    email: EmailStr
-    user_level: str
 
-
-class UserRead(BaseModel):
-    nickname: str
-    email: EmailStr
-    user_level: str
-    is_premium: bool | None
-
-
-class UserAuth(BaseModel):
-    nickname: str
-    password: str
-
-
-class Hashed(BaseModel):
-    hashed_password: str

@@ -1,15 +1,13 @@
 from typing import Annotated
 
-from fastapi import Depends, FastAPI, HTTPException, status
-from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
+from fastapi import Depends, HTTPException
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from api.auth.models import User as UserModel
-from api.auth.schemas import User as UserSchema, TokenData
+from api.auth.schemas import User as UserSchema
 from api.database import get_async_session
-from api.auth.auth_config import get_password_hash, verify_password, oauth2_scheme, SECRET_KEY, ALGORITHM, verify_access_token
-from sqlalchemy import exc
-from jose import JWTError, jwt
+from api.auth.auth_config import get_password_hash, verify_password, oauth2_scheme, verify_access_token
 
 
 async def get_conn(session: AsyncSession):
@@ -20,7 +18,7 @@ async def get_conn(session: AsyncSession):
 async def add_user(session: AsyncSession, nickname: str, email: str, password: str):
     new_user = UserModel(nickname=nickname, email=email, hashed_password=get_password_hash(password))
     session.add(new_user)
-    return new_user.nickname, new_user.email
+    return new_user
 
 
 async def get_user_by_nickname(session: AsyncSession, nickname: str):
