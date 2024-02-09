@@ -1,12 +1,11 @@
-from typing import Annotated
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 from fastapi.security import OAuth2PasswordBearer
-from api.config import SECRET_KEY as secret
+from api.config import SECRET_KEY as SECRET
 from datetime import datetime, timedelta
-from jose import JWTError, jwt
+from jose import  jwt
 from passlib.context import CryptContext
 
-SECRET_KEY = secret
+SECRET_KEY = SECRET
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 15
 

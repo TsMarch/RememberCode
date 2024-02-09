@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from api.auth.models import User as UserModel
 from api.auth.schemas import User as UserSchema
-from api.database import get_async_session
+from api.auth.database import get_async_session
 from api.auth.auth_config import get_password_hash, verify_password, oauth2_scheme, verify_access_token
 
 
