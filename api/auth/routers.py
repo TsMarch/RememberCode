@@ -17,7 +17,8 @@ router = APIRouter(
 
 
 @router.post("/registration/", response_model=User,
-             response_model_exclude={"hashed_password", "id", "disabled", "is_premium"})
+             response_model_exclude={"hashed_password", "id", "disabled", "is_premium"}
+             )
 async def add_user(user: User, session: AsyncSession = Depends(get_async_session)):
     user = await utils.add_user(session, user.nickname, user.email, user.hashed_password)
     try:
@@ -29,28 +30,34 @@ async def add_user(user: User, session: AsyncSession = Depends(get_async_session
 
 
 # Get user by nickname
-@router.post("/get_user/", response_model=User, response_model_exclude={"hashed_password"})
+@router.post("/get_user/nickname", response_model=User,
+             response_model_exclude={"hashed_password", "id", "disabled", "is_premium"}
+             )
 async def get_user_by_nickname(nickname: str, session: AsyncSession = Depends(get_async_session)):
     check = await utils.get_user_by_nickname(session, nickname)
     return check
 
 
-@router.post("/get_user/id", response_model=User)
+@router.post("/get_user/id", response_model=User,
+             response_model_exclude={"hashed_password", "id", "disabled", "is_premium"}
+             )
 async def get_user_by_id(user_id: str, session: AsyncSession = Depends(get_async_session)):
     check = await utils.get_user_by_id(session, user_id)
     return check
 
 
-# WIP
 @router.post("/token", response_model=Token)
 async def login_for_access_token(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()], session: AsyncSession = Depends(get_async_session)
+        form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+        session: AsyncSession = Depends(get_async_session)
 ):
     user = await authenticate_user(session, form_data.username, form_data.password)
     access_token = create_access_token(data={"sub": jsonable_encoder(user.id)})
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.post("/users/me", response_model=User)
+@router.post("/users/me", response_model=User,
+             response_model_exclude={"hashed_password", "id", "disabled"}
+             )
 async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]):
     return current_user

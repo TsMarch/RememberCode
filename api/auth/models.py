@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Boolean, String, Integer, ForeignKey
+from sqlalchemy import Boolean, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from pydantic import EmailStr
