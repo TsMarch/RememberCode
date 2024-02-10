@@ -5,9 +5,10 @@ from datetime import datetime, timedelta
 from jose import  jwt
 from passlib.context import CryptContext
 
+
 SECRET_KEY = SECRET
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 15
+
 
 router = APIRouter()
 
@@ -24,7 +25,7 @@ def verify_password(password, hashed_password):
 
 
 def create_access_token(data: dict):
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.utcnow() + timedelta(weeks=10)
     to_encode = data.copy()
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)

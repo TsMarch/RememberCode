@@ -18,4 +18,5 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
-redis = redis.asyncio.from_url("redis://redis:6379", decode_responses=True)
+url_connection = redis.asyncio.from_url("redis://localhost:6379?decode_responses=True&protocol=3")
+

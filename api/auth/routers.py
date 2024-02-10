@@ -1,3 +1,4 @@
+import json
 from typing import Annotated
 from fastapi.encoders import jsonable_encoder
 from fastapi import APIRouter, Depends
@@ -53,9 +54,11 @@ async def login_for_access_token(
 ):
     user = await authenticate_user(session, form_data.username, form_data.password)
     access_token = create_access_token(data={"sub": jsonable_encoder(user.id)})
+    await utils.write_to_redis(jsonable_encoder(user.id), access_token)
     return {"access_token": access_token, "token_type": "bearer"}
 
 
+# Secured path
 @router.post("/users/me", response_model=User,
              response_model_exclude={"hashed_password", "id", "disabled"}
              )

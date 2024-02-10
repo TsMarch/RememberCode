@@ -1,3 +1,4 @@
+import json
 from typing import Annotated
 
 from fastapi import Depends, HTTPException
@@ -6,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from api.auth.models import User as UserModel
 from api.auth.schemas import User as UserSchema
-from api.auth.database import get_async_session
+from api.auth.database import get_async_session, url_connection
 from api.auth.auth_config import get_password_hash, verify_password, oauth2_scheme, verify_access_token
 
 
@@ -57,3 +58,12 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)],
     if not user:
         raise HTTPException(status_code=400, detail="No such user")
     return user
+
+
+async def write_to_redis(key, value):
+    await url_connection.set(key, value)
+
+
+async def get_from_redis(nickname):
+    kek = await url_connection.get(nickname)
+    return kek
