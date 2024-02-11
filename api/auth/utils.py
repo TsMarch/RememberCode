@@ -24,17 +24,17 @@ async def add_user(session: AsyncSession, nickname: str, email: str, password: s
 
 async def get_user_by_nickname(session: AsyncSession, nickname: str):
     result = await session.execute(select(UserModel).where(UserModel.nickname == nickname))
-    return result.scalar_one()
+    return result.fetchone()[0]
 
 
 async def get_hashed_password(session: AsyncSession, nickname: str):
     result = await session.execute(select(UserModel.hashed_password).where(UserModel.nickname == nickname))
-    return result.scalar_one()
+    return result.fetchone()[0]
 
 
 async def get_user_by_id(session: AsyncSession, user_id: str):
     result = await session.execute(select(UserModel).where(UserModel.id == user_id))
-    return result.scalar_one()
+    return result.fetchone()[0]
 
 
 async def authenticate_user(session: AsyncSession, nickname: str, password: str):
@@ -51,9 +51,9 @@ async def authenticate_user(session: AsyncSession, nickname: str, password: str)
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)],
                            session: AsyncSession = Depends(get_async_session)):
-    decoded_data = verify_access_token(token)
+    decoded_data = await verify_access_token(token)
     if not decoded_data:
-        raise HTTPException(status_code=400, detail="Token expired")
+        raise HTTPException(status_code=400, detail="Token credentials error")
     user = await get_user_by_id(session, decoded_data["sub"])
     if not user:
         raise HTTPException(status_code=400, detail="No such user")
@@ -64,6 +64,18 @@ async def write_to_redis(key, value):
     await url_connection.set(key, value)
 
 
-async def get_from_redis(nickname):
-    kek = await url_connection.get(nickname)
-    return kek
+async def get_from_redis(token: Annotated[str, Depends(oauth2_scheme)],
+                         session: AsyncSession = Depends(get_async_session)):
+    """
+    This function decodes the token, then passing subjects uuid key to redis, and finally checks if tokens
+    (values in redis) are equal.
+    """
+    decoded_data = await verify_access_token(token)
+    if not decoded_data:
+        raise HTTPException(status_code=400, detail="Bad token")
+    check_token = await url_connection.get(decoded_data["sub"])
+    if not check_token:
+        raise HTTPException(status_code=400, detail="No such token in database")
+    if check_token == token:
+        user = await get_user_by_id(session, decoded_data["sub"])
+        return user

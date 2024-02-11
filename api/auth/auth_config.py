@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from api.config import SECRET_KEY as SECRET
 from datetime import datetime, timedelta
@@ -25,14 +25,14 @@ def verify_password(password, hashed_password):
 
 
 def create_access_token(data: dict):
-    expire = datetime.utcnow() + timedelta(weeks=10)
+    expire = datetime.utcnow() + timedelta(weeks=100)
     to_encode = data.copy()
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 
-def verify_access_token(token: str):
+async def verify_access_token(token: str):
     try:
         decoded_data = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return decoded_data
