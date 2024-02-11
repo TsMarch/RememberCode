@@ -23,6 +23,7 @@ async def add_user(user: User, session: AsyncSession = Depends(get_async_session
     user = await utils.add_user(session, user.nickname, user.email, user.hashed_password)
     try:
         await session.commit()
+
         return user
     except IntegrityError as ex:
         await session.rollback()
@@ -62,7 +63,19 @@ async def login_for_access_token(
 
 # Secured path
 @router.post("/users/me", response_model=User,
-             response_model_exclude={"hashed_password", "id", "disabled"}
+             response_model_exclude={"hashed_password", "nickname", "disabled", "email"}
              )
 async def read_users_me(current_user: Annotated[User, Depends(get_from_redis)]):
     return current_user
+
+
+@router.patch("/users/update_level", #response_model=User,
+              #response_model_exclude={"hashed_password", "disabled"}
+              )
+async def promote_user(user_id: str, session: AsyncSession = Depends(get_async_session)):
+    result = await utils.update_user(session, user_id)
+    try:
+        await session.commit()
+    finally:
+        return result
+

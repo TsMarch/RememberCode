@@ -16,6 +16,7 @@ class TokenData(BaseModel):
 class User(BaseModel):
     nickname: str
     email: EmailStr
+    id: UUID
     hashed_password: str
     user_level: str | None = None
     is_premium: bool | None = None
