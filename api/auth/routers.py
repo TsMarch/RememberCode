@@ -1,12 +1,13 @@
 from typing import Annotated
 from fastapi.encoders import jsonable_encoder
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.exc import IntegrityError
+from fastapi.exceptions import ResponseValidationError
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.security import OAuth2PasswordRequestForm
 from api.auth import utils
 from api.auth.schemas import User, Token
-from api.auth.utils import authenticate_user, get_current_user, get_from_redis
+from api.auth.utils import authenticate_user, get_current_user, get_from_redis, update_user_utils
 from api.auth.database import get_async_session
 from api.auth.auth_config import create_access_token, verify_access_token
 
@@ -16,18 +17,15 @@ router = APIRouter(
 )
 
 
-@router.post("/registration/", response_model=User,
+@router.post("/registration/", response_model=User | dict,
              response_model_exclude={"hashed_password", "id", "disabled", "is_premium"}
              )
 async def add_user(user: User, session: AsyncSession = Depends(get_async_session)):
     user = await utils.add_user(session, user.nickname, user.email, user.hashed_password)
     try:
-        await session.commit()
-
         return user
-    except IntegrityError as ex:
-        await session.rollback()
-        raise IntegrityError("This user already exists")
+    except ResponseValidationError:
+        return user
 
 
 # Get user by nickname
@@ -69,13 +67,9 @@ async def read_users_me(current_user: Annotated[User, Depends(get_from_redis)]):
     return current_user
 
 
-@router.patch("/users/update_level", #response_model=User,
-              #response_model_exclude={"hashed_password", "disabled"}
+@router.patch("/users/update_level", response_model=User,
+              response_model_exclude={"hashed_password", "disabled"}
               )
-async def promote_user(user_id: str, session: AsyncSession = Depends(get_async_session)):
-    result = await utils.update_user(session, user_id)
-    try:
-        await session.commit()
-    finally:
-        return result
+async def promote_user(update_user: Annotated[User, Depends(update_user_utils)]):
+    return update_user
 
