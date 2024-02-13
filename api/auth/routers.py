@@ -22,10 +22,7 @@ router = APIRouter(
              )
 async def add_user(user: User, session: AsyncSession = Depends(get_async_session)):
     user = await utils.add_user(session, user.nickname, user.email, user.hashed_password)
-    try:
-        return user
-    except ResponseValidationError:
-        return user
+    return user
 
 
 # Get user by nickname
