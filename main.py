@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends
 from api.python_questions.routers import router as python_router
 from api.python_questions.database import initiate_database
-from api.auth.auth_config import router as register_router
+from api.auth.security import router as register_router
 
 from api.auth.routers import router as auth_router
 

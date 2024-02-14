@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from api.config import SECRET_KEY as SECRET
 from datetime import datetime, timedelta
-from jose import  jwt
+from jose import jwt
 from passlib.context import CryptContext
 
 
@@ -16,12 +16,14 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def get_password_hash(password):
-    return pwd_context.hash(password)
+class Hash:
+    @staticmethod
+    def get_password_hash(password):
+        return pwd_context.hash(password)
 
-
-def verify_password(password, hashed_password):
-    return pwd_context.verify(password, hashed_password)
+    @staticmethod
+    def verify_password(password, hashed_password):
+        return pwd_context.verify(password, hashed_password)
 
 
 def create_access_token(data: dict):

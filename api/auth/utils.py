@@ -8,8 +8,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from api.auth.models import User as UserModel
 from api.auth.schemas import User as UserSchema
-from api.auth.database import get_async_session, url_connection
-from api.auth.auth_config import get_password_hash, verify_password, oauth2_scheme, verify_access_token
+from api.auth.database import get_async_session, url_connection_redis
+from api.auth.security import Hash, oauth2_scheme, verify_access_token
 
 
 async def get_conn(session: AsyncSession):
@@ -18,7 +18,7 @@ async def get_conn(session: AsyncSession):
 
 
 async def add_user(session: AsyncSession, nickname: str, email: str, password: str) -> UserSchema | dict:
-    new_user = UserModel(nickname=nickname, email=email, hashed_password=get_password_hash(password))
+    new_user = UserModel(nickname=nickname, email=email, hashed_password=Hash.get_password_hash(password))
     try:
         session.add(new_user)
         await session.commit()
@@ -49,7 +49,7 @@ async def authenticate_user(session: AsyncSession, nickname: str, password: str)
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
 
-    password_check = verify_password(password, await get_hashed_password(session, nickname))
+    password_check = Hash.verify_password(password, await get_hashed_password(session, nickname))
     if not password_check:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
 
@@ -57,7 +57,7 @@ async def authenticate_user(session: AsyncSession, nickname: str, password: str)
 
 
 async def update_user_utils(token: Annotated[str, Depends(oauth2_scheme)],
-                      session: AsyncSession = Depends(get_async_session)) -> bool:
+                            session: AsyncSession = Depends(get_async_session)) -> bool:
     user_id = await verify_access_token(token)
     promotion = await session.execute(update(UserModel).where(UserModel.id == user_id["sub"]).values(user_level="upper"))
     try:
@@ -83,7 +83,8 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)],
 
 
 async def write_to_redis(key, value):
-    await url_connection.set(key, value)
+    await url_connection_redis.set(key, value)
+    await url_connection_redis.aclose()
 
 
 async def get_from_redis(token: Annotated[str, Depends(oauth2_scheme)],
@@ -95,7 +96,8 @@ async def get_from_redis(token: Annotated[str, Depends(oauth2_scheme)],
     decoded_data = await verify_access_token(token)
     if not decoded_data:
         raise HTTPException(status_code=400, detail="Bad token")
-    check_token = await url_connection.get(decoded_data["sub"])
+    check_token = await url_connection_redis.get(decoded_data["sub"])
+    await url_connection_redis.aclose()
     if not check_token:
         raise HTTPException(status_code=400, detail="No such token in database")
     if check_token == token:

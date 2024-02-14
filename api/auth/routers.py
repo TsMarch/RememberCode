@@ -9,7 +9,7 @@ from api.auth import utils
 from api.auth.schemas import User, Token
 from api.auth.utils import authenticate_user, get_current_user, get_from_redis, update_user_utils
 from api.auth.database import get_async_session
-from api.auth.auth_config import create_access_token, verify_access_token
+from api.auth.security import create_access_token, verify_access_token
 
 router = APIRouter(
     prefix="/auth",
