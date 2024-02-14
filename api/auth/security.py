@@ -26,17 +26,19 @@ class Hash:
         return pwd_context.verify(password, hashed_password)
 
 
-def create_access_token(data: dict):
-    expire = datetime.utcnow() + timedelta(weeks=100)
-    to_encode = data.copy()
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+class AccessToken:
+    @staticmethod
+    def create_access_token(data: dict):
+        expire = datetime.utcnow() + timedelta(weeks=100)
+        to_encode = data.copy()
+        to_encode.update({"exp": expire})
+        encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+        return encoded_jwt
 
-
-async def verify_access_token(token: str):
-    try:
-        decoded_data = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return decoded_data
-    except Exception as e:
-        return None
+    @staticmethod
+    async def verify_access_token(token: str):
+        try:
+            decoded_data = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            return decoded_data
+        except Exception as e:
+            return None

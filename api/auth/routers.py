@@ -1,15 +1,14 @@
 from typing import Annotated
 from fastapi.encoders import jsonable_encoder
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.exceptions import ResponseValidationError
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.security import OAuth2PasswordRequestForm
 from api.auth import utils
-from api.auth.schemas import User, Token
+from api.auth.schemas import User, Token, UserReg
 from api.auth.utils import authenticate_user, get_current_user, get_from_redis, update_user_utils
 from api.auth.database import get_async_session
-from api.auth.security import create_access_token, verify_access_token
+from api.auth.security import AccessToken
 
 router = APIRouter(
     prefix="/auth",
@@ -18,9 +17,9 @@ router = APIRouter(
 
 
 @router.post("/registration/", response_model=User | dict,
-             response_model_exclude={"hashed_password", "id", "disabled", "is_premium"}
+             response_model_exclude={"hashed_password", "disabled", "is_premium"}
              )
-async def add_user(user: User, session: AsyncSession = Depends(get_async_session)):
+async def add_user(user: UserReg, session: AsyncSession = Depends(get_async_session)):
     user = await utils.add_user(session, user.nickname, user.email, user.hashed_password)
     return user
 
@@ -48,8 +47,8 @@ async def login_for_access_token(
         session: AsyncSession = Depends(get_async_session)
 ):
     user = await authenticate_user(session, form_data.username, form_data.password)
-    access_token = create_access_token(data={"sub": jsonable_encoder(user.id)})
-    auth_check = await verify_access_token(access_token)
+    access_token = AccessToken.create_access_token(data={"sub": jsonable_encoder(user.id)})
+    auth_check = await AccessToken.verify_access_token(access_token)
     if not auth_check:
         raise HTTPException(status_code=400, detail="Fake token")
     await utils.write_to_redis(jsonable_encoder(user.id), access_token)

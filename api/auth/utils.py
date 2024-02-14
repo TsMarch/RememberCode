@@ -8,8 +8,9 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from api.auth.models import User as UserModel
 from api.auth.schemas import User as UserSchema
+from api.auth.schemas import UserReg
 from api.auth.database import get_async_session, url_connection_redis
-from api.auth.security import Hash, oauth2_scheme, verify_access_token
+from api.auth.security import Hash, oauth2_scheme, AccessToken
 
 
 async def get_conn(session: AsyncSession):
@@ -25,7 +26,6 @@ async def add_user(session: AsyncSession, nickname: str, email: str, password: s
     except IntegrityError as e:
         await session.rollback()
         return {"Error": "User with such credentials already exists"}
-
     return new_user
 
 
@@ -58,7 +58,7 @@ async def authenticate_user(session: AsyncSession, nickname: str, password: str)
 
 async def update_user_utils(token: Annotated[str, Depends(oauth2_scheme)],
                             session: AsyncSession = Depends(get_async_session)) -> bool:
-    user_id = await verify_access_token(token)
+    user_id = await AccessToken.verify_access_token(token)
     promotion = await session.execute(update(UserModel).where(UserModel.id == user_id["sub"]).values(user_level="upper"))
     try:
         await session.commit()
@@ -73,7 +73,7 @@ async def update_user_utils(token: Annotated[str, Depends(oauth2_scheme)],
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)],
                            session: AsyncSession = Depends(get_async_session)) -> UserSchema | None:
-    decoded_data = await verify_access_token(token)
+    decoded_data = await AccessToken.verify_access_token(token)
     if not decoded_data:
         raise HTTPException(status_code=400, detail="Token credentials error")
     user = await get_user_by_id(session, decoded_data["sub"])
@@ -93,7 +93,7 @@ async def get_from_redis(token: Annotated[str, Depends(oauth2_scheme)],
     This function decodes the token, then passing subjects uuid key to redis, and finally checks if tokens
     (value in redis) are equal.
     """
-    decoded_data = await verify_access_token(token)
+    decoded_data = await AccessToken.verify_access_token(token)
     if not decoded_data:
         raise HTTPException(status_code=400, detail="Bad token")
     check_token = await url_connection_redis.get(decoded_data["sub"])
