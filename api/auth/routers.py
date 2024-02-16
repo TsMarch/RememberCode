@@ -1,14 +1,15 @@
 from typing import Annotated
-from fastapi.encoders import jsonable_encoder
-from fastapi import APIRouter, Depends, HTTPException
 
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.encoders import jsonable_encoder
 from fastapi.security import OAuth2PasswordRequestForm
-from api.auth import utils
-from api.auth.schemas import User, Token, UserReg
-from api.auth.utils import authenticate_user, get_current_user, get_from_redis, update_user_utils
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from api.auth import security_utils, user_utils
 from api.auth.database import get_async_session
+from api.auth.schemas import User, Token, UserReg
 from api.auth.security import AccessToken
+
 
 router = APIRouter(
     prefix="/auth",
@@ -20,7 +21,7 @@ router = APIRouter(
              response_model_exclude={"hashed_password", "disabled", "is_premium"}
              )
 async def add_user(user: UserReg, session: AsyncSession = Depends(get_async_session)):
-    user = await utils.add_user(session, user.nickname, user.email, user.hashed_password)
+    user = await user_utils.add_user(session, user.nickname, user.email, user.hashed_password)
     return user
 
 
@@ -29,7 +30,7 @@ async def add_user(user: UserReg, session: AsyncSession = Depends(get_async_sess
              response_model_exclude={"hashed_password", "id", "disabled", "is_premium"}
              )
 async def get_user_by_nickname(nickname: str, session: AsyncSession = Depends(get_async_session)):
-    check = await utils.get_user_by_nickname(session, nickname)
+    check = await user_utils.get_user_by_nickname(session, nickname)
     return check
 
 
@@ -37,7 +38,7 @@ async def get_user_by_nickname(nickname: str, session: AsyncSession = Depends(ge
              response_model_exclude={"hashed_password", "id", "disabled", "is_premium"}
              )
 async def get_user_by_id(user_id: str, session: AsyncSession = Depends(get_async_session)):
-    check = await utils.get_user_by_id(session, user_id)
+    check = await user_utils.get_user_by_id(session, user_id)
     return check
 
 
@@ -46,12 +47,12 @@ async def login_for_access_token(
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
         session: AsyncSession = Depends(get_async_session)
 ):
-    user = await authenticate_user(session, form_data.username, form_data.password)
+    user = await user_utils.authenticate_user(session, form_data.username, form_data.password)
     access_token = AccessToken.create_access_token(data={"sub": jsonable_encoder(user.id)})
     auth_check = await AccessToken.verify_access_token(access_token)
     if not auth_check:
         raise HTTPException(status_code=400, detail="Fake token")
-    await utils.write_to_redis(jsonable_encoder(user.id), access_token)
+    await security_utils.write_to_redis(jsonable_encoder(user.id), access_token)
     return {"access_token": access_token, "token_type": "bearer"}
 
 
@@ -59,13 +60,12 @@ async def login_for_access_token(
 @router.post("/users/me", response_model=User,
              response_model_exclude={"hashed_password", "nickname", "disabled", "email"}
              )
-async def read_users_me(current_user: Annotated[User, Depends(get_from_redis)]):
+async def read_users_me(current_user: Annotated[User, Depends(security_utils.get_from_redis)]):
     return current_user
 
 
-@router.patch("/users/update_level", response_model=User,
+@router.patch("/users/update_level", response_model=User | bool,
               response_model_exclude={"hashed_password", "disabled"}
               )
-async def promote_user(update_user: Annotated[User, Depends(update_user_utils)]):
+async def promote_user(update_user: Annotated[User, Depends(user_utils.update_user_utils)]):
     return update_user
-
