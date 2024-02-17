@@ -17,6 +17,7 @@ router = APIRouter(
 )
 
 
+# Registration
 @router.post("/registration/", response_model=User | dict,
              response_model_exclude={"hashed_password", "disabled", "is_premium"}
              )
@@ -34,6 +35,7 @@ async def get_user_by_nickname(nickname: str, session: AsyncSession = Depends(ge
     return check
 
 
+# Get user by id
 @router.post("/get_user/id", response_model=User,
              response_model_exclude={"hashed_password", "id", "disabled", "is_premium"}
              )
@@ -42,6 +44,7 @@ async def get_user_by_id(user_id: str, session: AsyncSession = Depends(get_async
     return check
 
 
+# Get token
 @router.post("/token", response_model=Token)
 async def login_for_access_token(
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
@@ -56,7 +59,7 @@ async def login_for_access_token(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-# Secured path
+# Secured path (depends on token)
 @router.post("/users/me", response_model=User,
              response_model_exclude={"hashed_password", "nickname", "disabled", "email"}
              )
@@ -64,6 +67,7 @@ async def read_users_me(current_user: Annotated[User, Depends(security_utils.get
     return current_user
 
 
+# Route to update user
 @router.patch("/users/update_level", response_model=User | bool,
               response_model_exclude={"hashed_password", "disabled"}
               )

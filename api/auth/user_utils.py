@@ -11,12 +11,6 @@ from api.auth.schemas import User as UserSchema
 from api.auth.security import Hash, oauth2_scheme, AccessToken
 
 
-async def get_conn(session: AsyncSession):
-    result = await session.execute(select(UserSchema))
-    await session.close()
-    return result.all()
-
-
 async def add_user(session: AsyncSession, nickname: str, email: str, password: str) -> UserSchema | dict:
     new_user = UserModel(nickname=nickname, email=email, hashed_password=Hash.get_password_hash(password))
     try:
@@ -29,24 +23,33 @@ async def add_user(session: AsyncSession, nickname: str, email: str, password: s
 
 
 async def get_user_by_nickname(session: AsyncSession, nickname: str) -> UserSchema | None:
-    result = await session.execute(
+    query = await session.execute(
         select(UserModel).where(UserModel.nickname == nickname)
     )
-    return result.fetchone()[0]
+    result = query.fetchone()
+    if result is None:
+        raise HTTPException(status_code=400, detail="Not found")
+    return result[0]
 
 
 async def get_hashed_password(session: AsyncSession, nickname: str) -> UserSchema | None:
-    result = await session.execute(
+    query = await session.execute(
         select(UserModel.hashed_password).where(UserModel.nickname == nickname)
     )
-    return result.fetchone()[0]
+    result = query.fetchone()
+    if result is None:
+        raise HTTPException(400, detail="Not found")
+    return result[0]
 
 
 async def get_user_by_id(session: AsyncSession, user_id: str) -> UserSchema | None:
-    result = await session.execute(
+    query = await session.execute(
         select(UserModel).where(UserModel.id == user_id)
     )
-    return result.fetchone()[0]
+    result = query.fetchone()
+    if result is None:
+        raise HTTPException(400, detail="Not found")
+    return result[0]
 
 
 async def authenticate_user(session: AsyncSession, nickname: str, password: str) -> UserSchema | None:
@@ -71,7 +74,7 @@ async def update_user_utils(token: Annotated[str, Depends(oauth2_scheme)],
         await session.commit()
     except IntegrityError:
         await session.rollback()
-        return {"Error": "User with such credentials already exists"}
+        return {"Error": f"User already has this status"}
 
     if not promotion:
         return False
