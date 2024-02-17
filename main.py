@@ -4,12 +4,17 @@ from api.python_questions.database import initiate_database
 from api.auth.security import router as register_router
 
 from api.auth.routers import router as auth_router
+from api.service_routers import router as service_router
 
 app = FastAPI(title="RememberCode")
 
 
 # Registration module (look up swagger docs or api/auth/routers)
 app.include_router(auth_router, tags=["Authentication module"])
+
+# Various service routers
+app.include_router(service_router, tags=["Service routers"])
+
 
 # MongoDB startup connection and test data insertion
 #@app.on_event("startup")

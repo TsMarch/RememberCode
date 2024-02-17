@@ -15,6 +15,7 @@ async def add_user(session: AsyncSession, nickname: str, email: str, password: s
     new_user = UserModel(nickname=nickname, email=email, hashed_password=Hash.get_password_hash(password))
     try:
         session.add(new_user)
+        await session.flush()
         await session.commit()
     except IntegrityError:
         await session.rollback()
