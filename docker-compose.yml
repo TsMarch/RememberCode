@@ -37,7 +37,7 @@ services:
     container_name: interview_app
     command: ["/fastapi_app/docker/app.sh"]
     ports:
-      - "9999:8080"
+      - "80:8081"
     depends_on:
       - db
       - mongodb
