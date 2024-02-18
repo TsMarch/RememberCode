@@ -52,11 +52,12 @@ async def login_for_access_token(
 ):
     user = await user_utils.authenticate_user(session, form_data.username, form_data.password)
     access_token = AccessToken.create_access_token(data={"sub": jsonable_encoder(user.id)})
+    # refresh_token = AccessToken.create_access_token(data={"sub": jsonable_encoder(user.id)})
     auth_check = await AccessToken.verify_access_token(access_token)
     if not auth_check:
         raise HTTPException(status_code=400, detail="Fake token")
     await security_utils.write_to_redis(jsonable_encoder(user.id), access_token)
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token,  "token_type": "bearer"}
 
 
 # Secured path (depends on token)

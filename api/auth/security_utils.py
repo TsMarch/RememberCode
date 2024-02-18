@@ -25,7 +25,7 @@ async def get_from_redis(token: Annotated[str, Depends(oauth2_scheme)],
     check_token = await url_connection_redis.get(decoded_data["sub"])
     await url_connection_redis.aclose()
     if not check_token:
-        raise HTTPException(status_code=400, detail="No such token in database")
+        raise HTTPException(status_code=401)
     if check_token == token:
         user = await get_user_by_id(session, decoded_data["sub"])
         return user
