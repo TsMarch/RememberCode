@@ -1,4 +1,8 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Depends
+
+from api.auth.models import create_tables
 from api.python_questions.routers import router as python_router
 from api.python_questions.database import initiate_database
 from api.auth.security import router as register_router
@@ -6,8 +10,14 @@ from api.auth.security import router as register_router
 from api.auth.routers import router as auth_router
 from api.service_routers import router as service_router
 
-app = FastAPI(title="RememberCode")
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await create_tables()
+    print("База готова к работе")
+    yield
+
+app = FastAPI(lifespan=lifespan, title="RememberCode")
 
 # Registration module (look up swagger docs or api/auth/routers)
 app.include_router(auth_router, tags=["Authentication module"])

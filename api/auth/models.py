@@ -5,6 +5,8 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from pydantic import EmailStr
 
+from api.auth.database import engine
+
 
 class Base(DeclarativeBase):
     pass
@@ -20,3 +22,8 @@ class User(Base):
     user_level: Mapped[str] = mapped_column(String(length=20), default="Beginner", nullable=False)
     disabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_premium: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
+
+async def create_tables():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
