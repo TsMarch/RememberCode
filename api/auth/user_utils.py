@@ -1,5 +1,6 @@
 from typing import Annotated
 
+import sqlalchemy.exc
 from fastapi import Depends, HTTPException
 from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
@@ -19,7 +20,7 @@ async def add_user(session: AsyncSession, nickname: str, email: str, password: s
         await session.commit()
     except IntegrityError:
         await session.rollback()
-        return {"Error": "User with such credentials already exists"}
+        raise HTTPException(status_code=400, detail="Such user already exists")
     return new_user
 
 
@@ -44,9 +45,12 @@ async def get_hashed_password(session: AsyncSession, nickname: str) -> UserSchem
 
 
 async def get_user_by_id(session: AsyncSession, user_id: str) -> UserSchema | None:
-    query = await session.execute(
-        select(UserModel).where(UserModel.id == user_id)
-    )
+    try:
+        query = await session.execute(
+            select(UserModel).where(UserModel.id == user_id)
+        )
+    except sqlalchemy.exc.DBAPIError:
+        raise HTTPException(status_code=422, detail="Invalid UUID")
     result = query.fetchone()
     if result is None:
         raise HTTPException(400, detail="Not found")

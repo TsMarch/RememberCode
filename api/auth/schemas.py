@@ -20,11 +20,12 @@ class UserReg(BaseModel):
     hashed_password: str
 
 
-class User(UserReg):
+class User(BaseModel):
+    nickname: str
+    email: EmailStr
     id: UUID
     user_level: str | None = None
     is_premium: bool | None = None
     disabled: bool | None = None
-
 
 

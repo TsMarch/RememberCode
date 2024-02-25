@@ -18,8 +18,7 @@ router = APIRouter(
 
 
 # Registration
-@router.post("/registration/", response_model=User | dict,
-             response_model_exclude={"hashed_password", "disabled", "is_premium"}
+@router.post("/registration/", response_model=User | dict
              )
 async def add_user(user: UserReg, session: AsyncSession = Depends(get_async_session)):
     user = await user_utils.add_user(session, user.nickname, user.email, user.hashed_password)
