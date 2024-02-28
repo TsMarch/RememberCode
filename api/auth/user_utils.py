@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth.database import get_async_session
 from api.auth.models import User as UserModel
-from api.auth.schemas import User as UserSchema
+from api.auth.schemas import User as UserSchema, Token
 from api.auth.security import Hash, oauth2_scheme, AccessToken
 
 
@@ -84,6 +84,17 @@ async def update_user_utils(token: Annotated[str, Depends(oauth2_scheme)],
     if not promotion:
         return False
     return True
+
+
+async def get_current_users_token(token: Annotated[str, Depends(oauth2_scheme)],
+                                  session: AsyncSession = Depends(get_async_session)) -> Token | None:
+    decoded_data = await AccessToken.verify_access_token(token)
+    if not decoded_data:
+        raise HTTPException(status_code=400, detail="Token credentials error")
+    user = await get_user_by_id(session, decoded_data["sub"])
+    if not user:
+        raise HTTPException(status_code=400, detail="No such user")
+    return token
 
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)],

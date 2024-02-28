@@ -17,6 +17,14 @@ router = APIRouter(
 )
 
 
+@router.get('/logout')
+async def logout(token: Annotated[User, Depends(user_utils.get_current_users_token)]):
+    result = await security_utils.delete_token(token)
+    if result:
+        return {"result": "success"}
+    raise HTTPException(status_code=401, detail="Not authorized")
+
+
 # Registration
 @router.post("/registration/", response_model=User | dict
              )
@@ -55,7 +63,7 @@ async def login_for_access_token(
     auth_check = await AccessToken.verify_access_token(access_token)
     if not auth_check:
         raise HTTPException(status_code=400, detail="Fake token")
-    await security_utils.write_to_redis(jsonable_encoder(user.id), access_token)
+    await security_utils.write_to_redis(access_token, jsonable_encoder(user.id))
     return {"access_token": access_token,  "token_type": "bearer"}
 
 

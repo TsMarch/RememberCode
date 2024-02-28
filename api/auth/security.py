@@ -29,9 +29,9 @@ class Hash:
 class AccessToken:
     @staticmethod
     def create_access_token(data: dict):
-        expire = datetime.utcnow() + timedelta(weeks=100)
+        expire = datetime.utcnow() + timedelta(minutes=3)
         to_encode = data.copy()
-        to_encode.update({"exp": expire})
+        to_encode.update({"exp": expire, "iat": datetime.utcnow()})
         encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
         return encoded_jwt
 
