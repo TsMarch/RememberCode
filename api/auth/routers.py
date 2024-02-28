@@ -18,7 +18,7 @@ router = APIRouter(
 
 
 @router.get('/logout')
-async def logout(token: Annotated[User, Depends(user_utils.get_current_users_token)]) -> dict | HTTPException:
+async def logout(token: Annotated[User, Depends(user_utils.get_current_users_token)]):
     result = await security_utils.delete_token(token)
     if result:
         return {"result": "success"}
