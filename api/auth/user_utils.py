@@ -87,7 +87,7 @@ async def update_user_utils(token: Annotated[str, Depends(oauth2_scheme)],
 
 
 async def get_current_users_token(token: Annotated[str, Depends(oauth2_scheme)],
-                                  session: AsyncSession = Depends(get_async_session)) -> Token | None:
+                                  session: AsyncSession = Depends(get_async_session)) -> str | None:
     decoded_data = await AccessToken.verify_access_token(token)
     if not decoded_data:
         raise HTTPException(status_code=400, detail="Token credentials error")

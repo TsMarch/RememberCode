@@ -68,7 +68,7 @@ async def login_for_access_token(
 
 
 # Secured path (depends on token)
-@router.post("/users/me", response_model=User,
+@router.post("/users/me", response_model=User | bool,
              response_model_exclude={"hashed_password", "nickname", "disabled", "email"}
              )
 async def read_users_me(current_user: Annotated[User, Depends(security_utils.get_from_redis)]):
@@ -81,3 +81,4 @@ async def read_users_me(current_user: Annotated[User, Depends(security_utils.get
               )
 async def promote_user(update_user: Annotated[User, Depends(user_utils.update_user_utils)]):
     return update_user
+
