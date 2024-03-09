@@ -18,10 +18,10 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
-url_connection_redis = redis.asyncio.Redis(host='redis', port=6379, db=1, decode_responses=True)
+url_connection_redis = redis.asyncio.Redis(host='localhost', port=6379, db=1, decode_responses=True)
 
-url_connection_redis_blacklist = redis.asyncio.Redis(host='redis', port=6379, db=0, decode_responses=True)
+url_connection_redis_blacklist = redis.asyncio.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 
-
+url_connection_redis_acc = redis.asyncio.Redis(host='localhost', port=6379, db=2, decode_responses=True)
 
 

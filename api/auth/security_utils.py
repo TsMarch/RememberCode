@@ -2,16 +2,18 @@ from json import dumps, loads
 from typing import Annotated
 
 from fastapi import Depends, HTTPException
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.auth.database import url_connection_redis, get_async_session, url_connection_redis_blacklist
+from api.auth.database import url_connection_redis, get_async_session, url_connection_redis_blacklist, \
+    url_connection_redis_acc
 from api.auth.security import oauth2_scheme, AccessToken
 from api.auth.user_utils import get_user_by_id
 
 
 async def delete_token(token):
     decoded_data = await AccessToken.verify_access_token(token)
-    delete = await url_connection_redis.delete(decoded_data["sub"])
+    delete = await url_connection_redis.delete(token)
     await url_connection_redis.aclose()
     match delete:
         case 1:
@@ -22,8 +24,12 @@ async def delete_token(token):
             return False
 
 
-async def write_to_redis(key, value):
-    await url_connection_redis.set(value, key, ex=180)
+async def write_to_redis(*args):
+    match args[0]:
+        case "refresh_token":
+            await url_connection_redis.set(args[1], args[2], ex=2592000)
+        case "access_token":
+            await url_connection_redis_acc.set(args[1], args[2], ex=60)
     await url_connection_redis.aclose()
 
 
@@ -43,15 +49,27 @@ async def get_from_redis(token: Annotated[str, Depends(oauth2_scheme)],
     """
     decoded_data = await AccessToken.verify_access_token(token)
     if not decoded_data:
-        raise HTTPException(status_code=400, detail="Bad token")
-    check_token = await url_connection_redis.get(decoded_data["sub"])
-    blacklist = await check_blacklist(token)
-    if blacklist:
-        await url_connection_redis_blacklist.aclose()
-        raise HTTPException(status_code=401, detail="Blacklisted token")
-    await url_connection_redis.aclose()
-    if not check_token:
         raise HTTPException(status_code=401)
+
+    await url_connection_redis.aclose()
+
     user = await get_user_by_id(session, decoded_data["sub"])
     return user
 
+
+async def get_new_token(token):
+    """
+    This function decodes the token, then passing subjects uuid key to redis, and finally checks if tokens
+    (value in redis) are equal.
+    """
+    decoded_data = await AccessToken.verify_access_token(token)
+    check_token = await url_connection_redis.get(token)
+    await url_connection_redis.aclose()
+    if not check_token:
+        raise HTTPException(status_code=401)
+
+    await delete_token(token)
+    new_acc_token = AccessToken.create_access_token(data={"sub": jsonable_encoder(decoded_data["sub"])})
+    new_ref_token = AccessToken.create_refresh_token(data={"sub": jsonable_encoder(decoded_data["sub"])})
+    await write_to_redis(new_ref_token, decoded_data["sub"])
+    return {"access_token": new_acc_token, "refresh_token": new_ref_token}

@@ -1,6 +1,7 @@
+from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Header
 from fastapi.encoders import jsonable_encoder
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,8 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.auth import security_utils, user_utils
 from api.auth.database import get_async_session
 from api.auth.schemas import User, Token, UserReg
-from api.auth.security import AccessToken
-
+from api.auth.security import AccessToken, oauth2_scheme
 
 router = APIRouter(
     prefix="/auth",
@@ -52,19 +52,30 @@ async def get_user_by_id(user_id: str, session: AsyncSession = Depends(get_async
 
 
 # Get token
-@router.post("/token", response_model=Token)
+@router.post("/token")
 async def login_for_access_token(
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
         session: AsyncSession = Depends(get_async_session)
 ):
     user = await user_utils.authenticate_user(session, form_data.username, form_data.password)
     access_token = AccessToken.create_access_token(data={"sub": jsonable_encoder(user.id)})
-    # refresh_token = AccessToken.create_access_token(data={"sub": jsonable_encoder(user.id)})
-    auth_check = await AccessToken.verify_access_token(access_token)
-    if not auth_check:
-        raise HTTPException(status_code=400, detail="Fake token")
-    await security_utils.write_to_redis(access_token, jsonable_encoder(user.id))
-    return {"access_token": access_token,  "token_type": "bearer"}
+    refresh_token = AccessToken.create_refresh_token(data={"sub": jsonable_encoder(user.id)})
+   # auth_check = await AccessToken.verify_access_token(access_token)
+   # if not auth_check:
+    #    raise HTTPException(status_code=400, detail="Fake token")
+    await security_utils.write_to_redis("refresh_token", refresh_token, jsonable_encoder(user.id))
+    await security_utils.write_to_redis("access_token", access_token, jsonable_encoder(user.id))
+    return {"access_token": access_token,  "refresh_token": refresh_token, "token_type": "bearer"}
+
+
+@router.post("/refresh")
+async def refresh(
+        token: Annotated[str, Header()],
+        session: AsyncSession = Depends(get_async_session)
+):
+    refresh_token = await security_utils.get_new_token(token)
+    if refresh_token:
+        return {"status": "success"}
 
 
 # Secured path (depends on token)
