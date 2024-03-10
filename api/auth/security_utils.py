@@ -29,7 +29,7 @@ async def write_to_redis(*args):
         case "refresh_token":
             await url_connection_redis.set(args[1], args[2], ex=2592000)
         case "access_token":
-            await url_connection_redis_acc.set(args[1], args[2], ex=60)
+            await url_connection_redis_acc.set(args[1], args[2], ex=1800)
     await url_connection_redis.aclose()
 
 
@@ -49,7 +49,7 @@ async def get_from_redis(token: Annotated[str, Depends(oauth2_scheme)],
     """
     decoded_data = await AccessToken.verify_access_token(token)
     if not decoded_data:
-        raise HTTPException(status_code=401)
+        return {"status": "expired token"}
 
     await url_connection_redis.aclose()
 

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Optional, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Header
 from fastapi.encoders import jsonable_encoder
@@ -79,11 +79,16 @@ async def refresh(
 
 
 # Secured path (depends on token)
-@router.post("/users/me", response_model=User | bool,
+@router.post("/users/me", response_model=User | Any,
              response_model_exclude={"hashed_password", "nickname", "disabled", "email"}
              )
-async def read_users_me(current_user: Annotated[User, Depends(security_utils.get_from_redis)]):
-    return current_user
+async def read_users_me(current_user: Annotated[User, Depends(security_utils.get_from_redis)],
+                        refresh_token: Annotated[str | None, Header()] = None):
+    match current_user:
+        case {"status": "expired token"}:
+            return {"1": "cool"}
+        case _:
+            return {"2": "bad"}
 
 
 # Route to update user
