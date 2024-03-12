@@ -47,13 +47,14 @@ async def get_from_redis(token: Annotated[str, Depends(oauth2_scheme)],
     This function decodes the token, then passing subjects uuid key to redis, and finally checks if tokens
     (value in redis) are equal.
     """
-    decoded_data = await AccessToken.verify_access_token(token)
-    if not decoded_data:
-        return {"status": "expired token"}
+    check_token_db = await url_connection_redis_acc.exists(token)
+    if not check_token_db:
+        return {"status": "no such token"}
 
-    await url_connection_redis.aclose()
+    user_id = await url_connection_redis_acc.get(token)
+    await url_connection_redis_acc.aclose()
 
-    user = await get_user_by_id(session, decoded_data["sub"])
+    user = await get_user_by_id(session, user_id)
     return user
 
 
@@ -71,5 +72,7 @@ async def get_new_token(token):
     await delete_token(token)
     new_acc_token = AccessToken.create_access_token(data={"sub": jsonable_encoder(decoded_data["sub"])})
     new_ref_token = AccessToken.create_refresh_token(data={"sub": jsonable_encoder(decoded_data["sub"])})
-    await write_to_redis(new_ref_token, decoded_data["sub"])
+    write_new_ref_token = await write_to_redis("refresh_token", new_ref_token, decoded_data["sub"])
+    write_new_acc_token = await write_to_redis("access_token", new_acc_token, decoded_data["sub"])
+
     return {"access_token": new_acc_token, "refresh_token": new_ref_token}

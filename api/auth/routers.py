@@ -83,12 +83,14 @@ async def refresh(
              response_model_exclude={"hashed_password", "nickname", "disabled", "email"}
              )
 async def read_users_me(current_user: Annotated[User, Depends(security_utils.get_from_redis)],
+                        session: AsyncSession = Depends(get_async_session),
                         refresh_token: Annotated[str | None, Header()] = None):
     match current_user:
-        case {"status": "expired token"}:
-            return {"1": "cool"}
+        case {"status": "no such token"}:
+            refresh_token = await security_utils.get_new_token(refresh_token)
+            return await security_utils.get_from_redis(refresh_token["access_token"], session)
         case _:
-            return {"2": "bad"}
+            return current_user
 
 
 # Route to update user
