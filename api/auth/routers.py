@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Annotated, Optional, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Header
@@ -65,7 +65,9 @@ async def login_for_access_token(
     #    raise HTTPException(status_code=400, detail="Fake token")
     await security_utils.write_to_redis("refresh_token", refresh_token, jsonable_encoder(user.id))
     await security_utils.write_to_redis("access_token", access_token, jsonable_encoder(user.id))
-    return {"access_token": access_token,  "refresh_token": refresh_token, "token_type": "bearer"}
+    return {"access_token": access_token,  "refresh_token": refresh_token, "token_type": "bearer",
+            "access_token_expiration": datetime.utcnow()+timedelta(minutes=30),
+            "refresh_token_expiration": datetime.utcnow()+timedelta(days=30)}
 
 
 @router.post("/refresh")
