@@ -9,11 +9,15 @@ import Foundation
 import UIKit
 
 class MainViewPresenter: MainViewOutputDelegate {
-
     weak var moduleOutputDelegate: MainModuleOutputDelegate?
 
     func courseBlockTapped(courseName: String) {
         print(courseName)
         moduleOutputDelegate?.courseBlockTapped(courseName: courseName)
     }
+
+    func profileIconTapped() {
+        moduleOutputDelegate?.profileIconTapped()
+    }
+
 }

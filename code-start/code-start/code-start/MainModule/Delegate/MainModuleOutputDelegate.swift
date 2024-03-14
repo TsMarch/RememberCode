@@ -8,5 +8,6 @@
 import Foundation
 
 protocol MainModuleOutputDelegate: AnyObject {
-    func courseBlockTapped(courseName: String) 
+    func courseBlockTapped(courseName: String)
+    func profileIconTapped()
 }

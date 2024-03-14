@@ -43,7 +43,6 @@ class QuestionTableView: UIView {
         tableView.separatorStyle = .none
         tableView.bounces = false
         tableView.contentInset = UIEdgeInsets.zero
-        //tableView.layer.borderWidth = 10
         tableView.contentInsetAdjustmentBehavior = .never
         tableView.allowsSelection = false
         tableView.rowHeight = UIScreen.main.bounds.height

@@ -35,6 +35,11 @@ final class AppCoordinator: NSObject, CoordinatorProtocol {
 }
 
 extension AppCoordinator: MainModuleOutputDelegate {
+    func profileIconTapped() {
+        let profileViewContoroller = ProfileViewController()
+        self.navigationController.pushViewController(profileViewContoroller, animated: true)
+    }
+
     func courseBlockTapped(courseName: String) {
         let questionViewController = QuestionViewController()
 //        self.navigationController.definesPresentationContext = true

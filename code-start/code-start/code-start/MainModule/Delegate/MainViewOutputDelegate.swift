@@ -9,4 +9,5 @@ import Foundation
 
 protocol MainViewOutputDelegate: AnyObject {
     func courseBlockTapped(courseName: String)
+    func profileIconTapped()
 }

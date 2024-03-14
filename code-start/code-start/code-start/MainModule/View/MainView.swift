@@ -14,6 +14,7 @@ class MainView: UIView {
         let stack = UIStackView()
         stack.axis = .horizontal
         stack.distribution = .fillProportionally
+        stack.alignment = .center
         stack.translatesAutoresizingMaskIntoConstraints = false
         return stack
     }()
@@ -22,7 +23,8 @@ class MainView: UIView {
     private lazy var profileButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.heightAnchor.constraint(equalToConstant: 22).isActive = true
+        button.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        button.widthAnchor.constraint(equalToConstant: 30).isActive = true
         button.setImage(UIImage(systemName: "person.crop.circle"), for: .normal)
         button.tintColor = UIColor.black
         button.contentVerticalAlignment = .fill
@@ -35,16 +37,18 @@ class MainView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Good day, {profileUser}"
         label.font = UIFont.boldSystemFont(ofSize: Constans().headerFontSize)
-        label.heightAnchor.constraint(equalToConstant: 22).isActive = true
+        label.heightAnchor.constraint(equalToConstant: 25).isActive = true
         return label
     }()
 
     private lazy var notificationImage: UIImageView = {
         let image = UIImageView()
         image.translatesAutoresizingMaskIntoConstraints = false
-        image.heightAnchor.constraint(equalToConstant: 22).isActive = true
+        image.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        image.widthAnchor.constraint(equalToConstant: 30).isActive = true
         image.image = UIImage(systemName: "bell.fill")
         image.tintColor = UIColor.black
+        image.contentMode = .scaleAspectFit
         return image
     }()
 
@@ -80,8 +84,6 @@ class MainView: UIView {
         upperStackView.setCustomSpacing(10, after: profileButton)
         upperStackView.addArrangedSubview(profileLabel)
         upperStackView.addArrangedSubview(notificationImage)
-
-
     }
 
     private func configureCoursesStack() {
@@ -95,9 +97,14 @@ class MainView: UIView {
         }
     }
 
+    private func confgiureTargets() {
+        profileButton.addTarget(self, action: #selector(profileIconTapped), for: .touchUpInside)
+    }
+
     private func configureView() {
         configureUpperStack()
         configureCoursesStack()
+        confgiureTargets()
         backgroundColor = .white
         addSubview(upperStackView)
         addSubview(motivationLabel)
@@ -121,6 +128,11 @@ class MainView: UIView {
 
 }
 
+extension MainView {
+    @objc func profileIconTapped() {
+        delegate?.profileIconTapped()
+    }
+}
 
 extension MainView: CourseViewDelegate {
     func stackViewTapped(courseName: String) {
