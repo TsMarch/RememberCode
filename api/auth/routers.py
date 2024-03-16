@@ -1,5 +1,6 @@
+import json
 from datetime import datetime, timedelta
-from typing import Annotated, Optional, Any
+from typing import Annotated, Optional, Any, List, Type, Tuple, Dict
 
 from fastapi import APIRouter, Depends, HTTPException, Header
 from fastapi.encoders import jsonable_encoder
@@ -90,9 +91,15 @@ async def read_users_me(current_user: Annotated[User, Depends(security_utils.get
     match current_user:
         case {"status": "no such token"}:
             refresh_token = await security_utils.get_new_token(refresh_token)
-            return await security_utils.get_from_redis(refresh_token["access_token"], session)
+            cur_user = await security_utils.get_from_redis(refresh_token["access_token"], session)
+            return cur_user
         case _:
             return current_user
+
+
+@router.post("/testrouter")
+async def test(token: Annotated[str, Depends(user_utils.get_current_users_token)]):
+    return token
 
 
 # Route to update user

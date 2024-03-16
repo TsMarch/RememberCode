@@ -90,11 +90,11 @@ async def get_current_users_token(token: Annotated[str, Depends(oauth2_scheme)],
                                   session: AsyncSession = Depends(get_async_session)) -> str | None:
     decoded_data = await AccessToken.verify_access_token(token)
     if not decoded_data:
-        raise HTTPException(status_code=400, detail="Token credentials error")
+        raise HTTPException(status_code=400, detail="Упал на декодировке")
     user = await get_user_by_id(session, decoded_data["sub"])
     if not user:
-        raise HTTPException(status_code=400, detail="No such user")
-    return token
+        raise HTTPException(status_code=400, detail="Упал на поиске юзера в бд")
+    return decoded_data["sub"]
 
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)],

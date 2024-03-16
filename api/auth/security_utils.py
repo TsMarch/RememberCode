@@ -64,8 +64,9 @@ async def get_new_token(token):
     (value in redis) are equal.
     """
     decoded_data = await AccessToken.verify_access_token(token)
-    check_token = await url_connection_redis.get(token)
+    check_token = await url_connection_redis.exists(token)
     await url_connection_redis.aclose()
+    print(check_token)
     if not check_token:
         raise HTTPException(status_code=401)
 
