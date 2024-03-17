@@ -12,17 +12,29 @@ from api.auth.security import oauth2_scheme, AccessToken
 from api.auth.user_utils import get_user_by_id
 
 
-async def delete_token(token):
-    decoded_data = await AccessToken.verify_access_token(token)
-    delete = await url_connection_redis.delete(token)
-    await url_connection_redis.aclose()
-    match delete:
-        case 1:
-            await url_connection_redis_blacklist.set(token, decoded_data["sub"])
-            await url_connection_redis_blacklist.aclose()
-            return {"Token status": "Blacklisted"}
+async def delete_token(*args):
+    token = args[1]
+    match args[0]:
+        case "refresh_token":
+            result = await url_connection_redis.delete(token)
+            if not result:
+                await url_connection_redis.aclose()
+                return {"status": "no such token"}
+            await url_connection_redis.aclose()
+        case "access_token":
+            result = await url_connection_redis_acc.delete(token)
+            if not result:
+                await url_connection_redis.aclose()
+                return {"status": "no such token"}
+            await url_connection_redis_acc.aclose()
+            return {"status": "token deleted"}
+        case "all":
+            await url_connection_redis.flushall()
+            await url_connection_redis.aclose()
+            return {"status": "deleted all tokens"}
         case _:
-            return False
+            return {"status": "нужно вставить тип токена который хочешь удалить (и сам токен). "
+                              "Можно полностью дропнуть redis (all)"}
 
 
 async def write_to_redis(*args):
@@ -67,14 +79,11 @@ async def get_new_token(token, session: AsyncSession = Depends(get_async_session
     if not check_token:
         raise HTTPException(status_code=401)
     await url_connection_redis.aclose()
-    await delete_token(token)
+    await delete_token("refresh_token", token)
     new_acc_token = AccessToken.create_access_token(data={"sub": jsonable_encoder(decoded_data["sub"])})
     new_ref_token = AccessToken.create_refresh_token(data={"sub": jsonable_encoder(decoded_data["sub"])})
     write_new_ref_token = await write_to_redis("refresh_token", new_ref_token, decoded_data["sub"])
     write_new_acc_token = await write_to_redis("access_token", new_acc_token, decoded_data["sub"])
-
-    a = await get_from_redis(new_acc_token, session)
-    return a
     return {"access_token": new_acc_token, "refresh_token": new_ref_token, "token_type": "bearer",
             "access_token_expiration": datetime.utcnow()+timedelta(minutes=30),
             "refresh_token_expiration": datetime.utcnow()+timedelta(days=30)}

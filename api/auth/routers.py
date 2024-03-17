@@ -2,7 +2,7 @@ import json
 from datetime import datetime, timedelta
 from typing import Annotated, Optional, Any, List, Type, Tuple, Dict
 
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends, HTTPException, Header, Query
 from fastapi.encoders import jsonable_encoder
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -72,13 +72,10 @@ async def login_for_access_token(
 
 
 @router.post("/refresh")
-async def refresh(
-        token: Annotated[str, Header()],
-        session: AsyncSession = Depends(get_async_session)
-):
-    refresh_token = await security_utils.get_new_token(token)
-    if refresh_token:
-        return {"status": "success"}
+async def refresh(refresh_token: Annotated[str, Header()],
+                  session: AsyncSession = Depends(get_async_session)):
+    refresh_token = await security_utils.get_new_token(refresh_token)
+    return refresh_token
 
 
 # Secured path (depends on token)
@@ -88,13 +85,14 @@ async def refresh(
 async def read_users_me(current_user: Annotated[User, Depends(security_utils.get_from_redis)],
                         session: AsyncSession = Depends(get_async_session),
                         refresh_token: Annotated[str | None, Header()] = None):
-    match current_user:
-        case {"status": "no such token"}:
-            refresh_token = await security_utils.get_new_token(refresh_token)
-            cur_user = await security_utils.get_from_redis(refresh_token["access_token"], session)
-            return cur_user
-        case _:
-            return current_user
+    return current_user
+#    match current_user:
+ #       case {"status": "no such token"}:
+  #          refresh_token = await security_utils.get_new_token(refresh_token)
+   #         cur_user = await security_utils.get_from_redis(refresh_token["access_token"], session)
+    #        return cur_user
+     #   case _:
+      #      return current_user
 
 
 @router.post("/testrouter", response_model=User | Any,
@@ -116,3 +114,9 @@ async def test(token: Annotated[str, Depends(security_utils.get_from_redis)],
 async def promote_user(update_user: Annotated[User, Depends(user_utils.update_user_utils)]):
     return update_user
 
+
+@router.post("/delete/redis", response_model=dict)
+async def delete_token(type_of_token: str = Query(None, description="access_token or refresh_token or all"),
+                       token: Annotated[str | None, Header()] = None):
+    result = await security_utils.delete_token(type_of_token, token)
+    return result
