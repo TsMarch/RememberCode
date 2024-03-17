@@ -97,9 +97,16 @@ async def read_users_me(current_user: Annotated[User, Depends(security_utils.get
             return current_user
 
 
-@router.post("/testrouter")
-async def test(token: Annotated[str, Depends(user_utils.get_current_users_token)]):
-    return token
+@router.post("/testrouter", response_model=User | Any,
+             response_model_exclude={"hashed_password", "nickname", "email"})
+async def test(token: Annotated[str, Depends(security_utils.get_from_redis)],
+               refresh_token: Annotated[str | None, Header()] = None):
+    match token:
+        case {"status": "no token in redis"}:
+            refresh_token = await security_utils.get_new_token(refresh_token)
+            return refresh_token
+        case _:
+            return token
 
 
 # Route to update user

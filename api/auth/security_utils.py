@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from json import dumps, loads
 from typing import Annotated
 
@@ -48,32 +49,32 @@ async def get_from_redis(token: Annotated[str, Depends(oauth2_scheme)],
     (value in redis) are equal.
     """
     check_token_db = await url_connection_redis_acc.exists(token)
-    if not check_token_db:
-        return {"status": "no such token"}
+    print(token)
+    match check_token_db:
+        case 1:
+            user_id = await url_connection_redis_acc.get(token)
+            await url_connection_redis_acc.aclose()
+            user_data = await get_user_by_id(session, user_id)
+            return user_data
+        case 0:
+            await url_connection_redis_acc.aclose()
+            return {"status": "no token in redis"}
 
-    user_id = await url_connection_redis_acc.get(token)
-    await url_connection_redis_acc.aclose()
 
-    user = await get_user_by_id(session, user_id)
-    return user
-
-
-async def get_new_token(token):
-    """
-    This function decodes the token, then passing subjects uuid key to redis, and finally checks if tokens
-    (value in redis) are equal.
-    """
+async def get_new_token(token, session: AsyncSession = Depends(get_async_session)):
     decoded_data = await AccessToken.verify_access_token(token)
     check_token = await url_connection_redis.exists(token)
-    await url_connection_redis.aclose()
-    print(check_token)
     if not check_token:
         raise HTTPException(status_code=401)
-
+    await url_connection_redis.aclose()
     await delete_token(token)
     new_acc_token = AccessToken.create_access_token(data={"sub": jsonable_encoder(decoded_data["sub"])})
     new_ref_token = AccessToken.create_refresh_token(data={"sub": jsonable_encoder(decoded_data["sub"])})
     write_new_ref_token = await write_to_redis("refresh_token", new_ref_token, decoded_data["sub"])
     write_new_acc_token = await write_to_redis("access_token", new_acc_token, decoded_data["sub"])
 
-    return {"access_token": new_acc_token, "refresh_token": new_ref_token}
+    a = await get_from_redis(new_acc_token, session)
+    return a
+    return {"access_token": new_acc_token, "refresh_token": new_ref_token, "token_type": "bearer",
+            "access_token_expiration": datetime.utcnow()+timedelta(minutes=30),
+            "refresh_token_expiration": datetime.utcnow()+timedelta(days=30)}
