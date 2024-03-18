@@ -9,29 +9,21 @@ import Foundation
 
 class Authenticator {
     static let shared = Authenticator()
-
+    
     private var accessToken = AuthUserDefaultsWorker.shared.getAccessToken()
     private var refreshToken = AuthUserDefaultsWorker.shared.getRefreshToken()
-
+    
     public func isTokenExpire() -> Bool {
-        return Date.now.timeIntervalSince1970 > accessToken.expiresAt && AuthUserDefaultsWorker.shared.haveAuthTokens()
+        print(Date.now.timeIntervalSince1970, accessToken.expiresAt)
+        return Date().timeIntervalSince1970 > accessToken.expiresAt 
     }
 
-    public func requestAccessToken(with request: inout URLRequest) async {
-        request.setValue(refreshToken.token, forHTTPHeaderField: "bearer")
-        let data = try? await URLSession.shared.data(for: request)
-        guard let binaryData = data?.0, let response = data?.1 as? HTTPURLResponse else { return }
-        do {
-            let decodedTokensInfo = try JSONDecoder().decode(TokenDTO.self, from: binaryData)
-            print(decodedTokensInfo)
-            updateTokens(tokensInfo: decodedTokensInfo)
-        } catch {
-            print(error)
-        }
+    public func requestAccessToken() async {
+        await AuthService().refresh()
     }
 
     public func updateRequestTokenData(request: inout URLRequest) {
-        request.setValue(accessToken.token, forHTTPHeaderField: "bearer")
+        request.setValue("Bearer \(accessToken.token)", forHTTPHeaderField: "Authorization")
     }
 
     public func updateTokens(tokensInfo: TokenDTO) {

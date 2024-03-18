@@ -18,9 +18,10 @@ struct TokensInfo {
         self.refreshToken = token.refreshToken
         let dateFormater = DateFormatter()
         dateFormater.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
+        dateFormater.timeZone = TimeZone(secondsFromGMT: 0)
         self.accessTokenExpire = dateFormater.date(from: token.accessTokenExpiration)?.timeIntervalSince1970 ?? 0
         self.refreshTokenExpire = dateFormater.date(from: token.refreshTokenExpiration)?.timeIntervalSince1970 ?? 0
-        print(dateFormater.date(from: token.accessTokenExpiration))
+        print(dateFormater.date(from: token.accessTokenExpiration), Date.now)
     }
 }
 

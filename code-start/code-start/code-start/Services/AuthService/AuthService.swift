@@ -31,6 +31,26 @@ class AuthService: AuthServiceProtocol {
         guard let data = response.0 else { return }
         Authenticator.shared.updateTokens(tokensInfo: data)
     }
+
+    func refresh() async {
+        let request = AuthProvider.refresh.makeRequest
+        let response = await networkManager.performRequest(request, decodingType: TokenDTO.self)
+        guard let data = response.0 else { return }
+        Authenticator.shared.updateTokens(tokensInfo: data)
+    }
+
+    func testRoute() async {
+        let request = AuthProvider.test.makeRequest
+        let response = await networkManager.performAuthRequest(request, decodingType: TestDTO.self)
+        let data = response.0
+        let responseStatus = response.1
+        print(data)
+    }
+
+    func userMeRoute() async {
+        let request = AuthProvider.userMe.makeRequest
+        let response = await networkManager.performAuthRequest(request, decodingType: TestDTO.self)
+    }
 }
 
 extension AuthService {

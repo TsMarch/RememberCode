@@ -22,6 +22,7 @@ class NetworkManager {
         guard let binaryData = data?.0, let response = data?.1 as? HTTPURLResponse else { fatalError() } //TODO: Change fatal error
 
         do {
+            print(response.statusCode)
             let decodedDataa = try JSONSerialization.jsonObject(with: binaryData)
             print(decodedDataa)
             let decodedData = try JSONDecoder().decode(decodingType, from: binaryData)
@@ -34,11 +35,13 @@ class NetworkManager {
 
     func performAuthRequest<T>(_ request: URLRequest, decodingType: T.Type) async -> (T?, HTTPURLResponse) where T: Decodable {
         if authentificator.isTokenExpire() {
+            print("ttt")
             var request = request
-            await authentificator.requestAccessToken(with: &request)
+            await authentificator.requestAccessToken()
             authentificator.updateRequestTokenData(request: &request)
             return await performRequest(request, decodingType: T.self)
         } else {
+            print("fff")
             return await performRequest(request, decodingType: T.self)
         }
     }

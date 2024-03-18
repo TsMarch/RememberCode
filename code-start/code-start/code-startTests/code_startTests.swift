@@ -33,6 +33,20 @@ final class code_startTests: XCTestCase {
 
     func testLoginUser() async {
         await AuthService().loginUser(username: "Timur", password: "Siska")
+        await AuthService().testRoute()
+    }
+
+
+    func testRoute() async {
+        await AuthService().testRoute()
+    }
+
+    func testRefreshRoute() async {
+        await AuthService().refresh()
+    }
+
+    func testUserMe() async {
+        await AuthService().userMeRoute()
     }
 
     func testPerformanceExample() throws {

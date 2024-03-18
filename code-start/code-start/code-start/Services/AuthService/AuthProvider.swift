@@ -10,11 +10,14 @@ import Foundation
 enum AuthProvider {
     case registration(RegistrationDTO)
     case token(LoginDTO) //login
+    case test
+    case refresh
+    case userMe
 }
 
 extension AuthProvider: APIRequest {
     var baseURLString: String {
-        return "178.154.204.204"
+        return "84.201.133.88"
     }
 
     var apiPath: String {
@@ -38,6 +41,12 @@ extension AuthProvider: APIRequest {
             return "registration/"
         case .token:
             return "token"
+        case .test:
+            return "testrouter"
+        case .refresh:
+            return "refresh"
+        case .userMe:
+            return "users/me"
         }
     }
 
@@ -47,6 +56,12 @@ extension AuthProvider: APIRequest {
             return ["Content-Type": "application/json"]
         case .token:
             return ["Content-Type": "application/x-www-form-urlencoded"]
+        case .test:
+            return ["Content-Type": "application/json", "Authorization": "Bearer \(AuthUserDefaultsWorker.shared.getAccessToken().token)"]
+        case .refresh:
+            return ["Content-Type": "application/json", "refresh-token": "\(AuthUserDefaultsWorker.shared.getRefreshToken().token)"]
+        case .userMe:
+            return ["Content-Type": "application/json", "Authorization": "Bearer \(AuthUserDefaultsWorker.shared.getAccessToken().token)"]
         }
     }
 
@@ -70,7 +85,7 @@ extension AuthProvider: APIRequest {
 
     var method: HTTPMethod {
         switch self {
-        case .registration, .token:
+        case .registration, .token, .test, .refresh, .userMe:
             return .post
         }
     }
