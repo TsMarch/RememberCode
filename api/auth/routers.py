@@ -27,7 +27,7 @@ async def logout(token: Annotated[User, Depends(user_utils.get_current_users_tok
 
 
 # Registration
-@router.post("/registration/", response_model=UserNonSensitive | HTTPException
+@router.post("/registration/", response_model=UserNonSensitive
              )
 async def add_user(user: UserReg, session: AsyncSession = Depends(get_async_session)) \
         -> UserNonSensitive | HTTPException:
