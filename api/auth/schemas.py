@@ -29,5 +29,9 @@ class User(BaseModel):
     disabled: bool | None = None
 
 
-
+class UserNonSensitive(BaseModel):
+    nickname: str
+    user_level: str | None = None
+    is_premium: bool | None = None
+    disabled: bool | None = None
 

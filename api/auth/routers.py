@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth import security_utils, user_utils
 from api.auth.database import get_async_session
-from api.auth.schemas import User, Token, UserReg
+from api.auth.schemas import User, Token, UserReg, UserNonSensitive
 from api.auth.security import AccessToken, oauth2_scheme
 
 router = APIRouter(
@@ -27,29 +27,31 @@ async def logout(token: Annotated[User, Depends(user_utils.get_current_users_tok
 
 
 # Registration
-@router.post("/registration/", response_model=User | dict
+@router.post("/registration/", response_model=UserNonSensitive | HTTPException
              )
-async def add_user(user: UserReg, session: AsyncSession = Depends(get_async_session)):
+async def add_user(user: UserReg, session: AsyncSession = Depends(get_async_session)) \
+        -> UserNonSensitive | HTTPException:
     user = await user_utils.add_user(session, user.nickname, user.email, user.hashed_password)
     return user
 
 
 # Get user by nickname
-@router.post("/get_user/nickname", response_model=User,
-             response_model_exclude={"hashed_password", "id", "disabled", "is_premium"}
+@router.post("/get_user/nickname", response_model=User
+             # response_model_exclude={"hashed_password", "id", "disabled", "is_premium"}
              )
-async def get_user_by_nickname(nickname: str, session: AsyncSession = Depends(get_async_session)):
+async def get_user_by_nickname(nickname: str, session: AsyncSession = Depends(get_async_session)) \
+        -> User:
     check = await user_utils.get_user_by_nickname(session, nickname)
     return check
 
 
 # Get user by id
-@router.post("/get_user/id", response_model=User,
-             response_model_exclude={"hashed_password", "id", "disabled", "is_premium"}
+@router.post("/get_user/id", response_model=UserNonSensitive
+             # response_model_exclude={"hashed_password", "id", "disabled", "is_premium"}
              )
-async def get_user_by_id(user_id: str, session: AsyncSession = Depends(get_async_session)):
-    check = await user_utils.get_user_by_id(session, user_id)
-    return check
+async def get_user_by_id(user_id: str, session: AsyncSession = Depends(get_async_session)) -> User:
+    result = await user_utils.get_user_by_id(session, user_id)
+    return result
 
 
 # Get token
@@ -57,13 +59,10 @@ async def get_user_by_id(user_id: str, session: AsyncSession = Depends(get_async
 async def login_for_access_token(
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
         session: AsyncSession = Depends(get_async_session)
-):
+) -> dict:
     user = await user_utils.authenticate_user(session, form_data.username, form_data.password)
     access_token = AccessToken.create_access_token(data={"sub": jsonable_encoder(user.id)})
     refresh_token = AccessToken.create_refresh_token(data={"sub": jsonable_encoder(user.id)})
-   # auth_check = await AccessToken.verify_access_token(access_token)
-   # if not auth_check:
-    #    raise HTTPException(status_code=400, detail="Fake token")
     await security_utils.write_to_redis("refresh_token", refresh_token, jsonable_encoder(user.id))
     await security_utils.write_to_redis("access_token", access_token, jsonable_encoder(user.id))
     return {"access_token": access_token,  "refresh_token": refresh_token, "token_type": "bearer",
@@ -73,26 +72,17 @@ async def login_for_access_token(
 
 @router.post("/refresh")
 async def refresh(refresh_token: Annotated[str, Header()],
-                  session: AsyncSession = Depends(get_async_session)):
+                  session: AsyncSession = Depends(get_async_session)) -> dict:
     refresh_token = await security_utils.get_new_token(refresh_token)
     return refresh_token
 
 
 # Secured path (depends on token)
-@router.post("/users/me", response_model=User | Any,
+@router.post("/users/me", response_model=User,
              response_model_exclude={"hashed_password", "nickname", "disabled", "email"}
              )
-async def read_users_me(current_user: Annotated[User, Depends(security_utils.get_from_redis)],
-                        session: AsyncSession = Depends(get_async_session),
-                        refresh_token: Annotated[str | None, Header()] = None):
+async def read_users_me(current_user: Annotated[User, Depends(security_utils.get_from_redis)]):
     return current_user
-#    match current_user:
- #       case {"status": "no such token"}:
-  #          refresh_token = await security_utils.get_new_token(refresh_token)
-   #         cur_user = await security_utils.get_from_redis(refresh_token["access_token"], session)
-    #        return cur_user
-     #   case _:
-      #      return current_user
 
 
 @router.post("/testrouter", response_model=User | Any,

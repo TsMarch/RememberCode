@@ -12,7 +12,7 @@ from api.auth.schemas import User as UserSchema, Token
 from api.auth.security import Hash, oauth2_scheme, AccessToken
 
 
-async def add_user(session: AsyncSession, nickname: str, email: str, password: str) -> UserSchema | dict:
+async def add_user(session: AsyncSession, nickname: str, email: str, password: str) -> UserSchema | HTTPException:
     new_user = UserModel(nickname=nickname, email=email, hashed_password=Hash.get_password_hash(password))
     try:
         session.add(new_user)
@@ -20,7 +20,7 @@ async def add_user(session: AsyncSession, nickname: str, email: str, password: s
         await session.commit()
     except IntegrityError:
         await session.rollback()
-        raise HTTPException(status_code=400, detail="Such user already exists")
+        raise HTTPException(status_code=400, detail="User already exists")
     return new_user
 
 
