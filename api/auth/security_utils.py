@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from json import dumps, loads
 from typing import Annotated
 
 from fastapi import Depends, HTTPException
@@ -37,13 +36,15 @@ async def delete_token(*args):
                               "Можно полностью дропнуть redis (all)"}
 
 
-async def write_to_redis(*args):
-    match args[0]:
-        case "refresh_token":
-            await url_connection_redis.set(args[1], args[2], ex=2592000)
-        case "access_token":
-            await url_connection_redis_acc.set(args[1], args[2], ex=1800)
+async def write_to_redis(**kwargs):
+    for i in kwargs:
+        match i:
+            case "access_token":
+                await url_connection_redis_acc.set(kwargs[i][0], kwargs[i][1], ex=1800)
+            case "refresh_token":
+                await url_connection_redis.set(kwargs[i][0], kwargs[i][1], ex=2592000)
     await url_connection_redis.aclose()
+    await url_connection_redis_acc.aclose()
 
 
 async def check_blacklist(token):
@@ -82,8 +83,8 @@ async def get_new_token(token, session: AsyncSession = Depends(get_async_session
     await delete_token("refresh_token", token)
     new_acc_token = AccessToken.create_access_token(data={"sub": jsonable_encoder(decoded_data["sub"])})
     new_ref_token = AccessToken.create_refresh_token(data={"sub": jsonable_encoder(decoded_data["sub"])})
-    write_new_ref_token = await write_to_redis("refresh_token", new_ref_token, decoded_data["sub"])
-    write_new_acc_token = await write_to_redis("access_token", new_acc_token, decoded_data["sub"])
+    await write_to_redis("refresh_token", new_ref_token, decoded_data["sub"])
+    await write_to_redis("access_token", new_acc_token, decoded_data["sub"])
     return {"access_token": new_acc_token, "refresh_token": new_ref_token, "token_type": "bearer",
             "access_token_expiration": datetime.utcnow()+timedelta(minutes=30),
             "refresh_token_expiration": datetime.utcnow()+timedelta(days=30)}

@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from pymongo import ReturnDocument, MongoClient
 from bson import ObjectId
 from api.python_questions.models import Question
-from api.config import DB_PORT_MONGO, DB_HOST
+from api.config import DB_PORT_MONGO
 
 
 question_collection = Question

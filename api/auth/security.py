@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from fastapi.security import OAuth2PasswordBearer
 from api.config import SECRET_KEY as SECRET
 from datetime import datetime, timedelta

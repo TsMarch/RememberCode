@@ -3,9 +3,10 @@ from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 import redis.asyncio
 from redis import Redis
-from api.config import DB_PORT, DB_USER, DB_PASS, DB_NAME, DB_HOST
+from api.config import (DB_POSTGRES_HOST, DB_POSTGRES_USER, DB_POSTGRES_PASS, DB_POSTGRES_NAME, DB_POSTGRES_PORT,
+                        REDIS_HOST)
 
-DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+DATABASE_URL = f"postgresql+asyncpg://{DB_POSTGRES_USER}:{DB_POSTGRES_PASS}@{DB_POSTGRES_HOST}:{DB_POSTGRES_PORT}/{DB_POSTGRES_NAME}"
 
 
 engine = create_async_engine(DATABASE_URL, echo=True)
@@ -18,10 +19,10 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
-url_connection_redis = redis.asyncio.Redis(host='redis', port=6379, db=1, decode_responses=True)
+url_connection_redis = redis.asyncio.Redis(host=REDIS_HOST, port=6379, db=1, decode_responses=True)
 
-url_connection_redis_blacklist = redis.asyncio.Redis(host='redis', port=6379, db=0, decode_responses=True)
+url_connection_redis_blacklist = redis.asyncio.Redis(host=REDIS_HOST, port=6379, db=0, decode_responses=True)
 
-url_connection_redis_acc = redis.asyncio.Redis(host='redis', port=6379, db=2, decode_responses=True)
+url_connection_redis_acc = redis.asyncio.Redis(host=REDIS_HOST, port=6379, db=2, decode_responses=True)
 
 

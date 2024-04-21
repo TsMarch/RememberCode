@@ -35,8 +35,8 @@ async def login_for_access_token(
     user = await user_utils.authenticate_user(session, form_data.username, form_data.password)
     access_token = AccessToken.create_access_token(data={"sub": jsonable_encoder(user.id)})
     refresh_token = AccessToken.create_refresh_token(data={"sub": jsonable_encoder(user.id)})
-    await security_utils.write_to_redis("refresh_token", refresh_token, jsonable_encoder(user.id))
-    await security_utils.write_to_redis("access_token", access_token, jsonable_encoder(user.id))
+    await security_utils.write_to_redis(refresh_token=[refresh_token, jsonable_encoder(user.id)],
+                                        access_token=[access_token, jsonable_encoder(user.id)])
     return {"access_token": access_token,  "refresh_token": refresh_token, "token_type": "bearer",
             "access_token_expiration": datetime.utcnow()+timedelta(minutes=30),
             "refresh_token_expiration": datetime.utcnow()+timedelta(days=30)}
