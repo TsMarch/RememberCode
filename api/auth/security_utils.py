@@ -83,8 +83,8 @@ async def get_new_token(token, session: AsyncSession = Depends(get_async_session
     await delete_token("refresh_token", token)
     new_acc_token = AccessToken.create_access_token(data={"sub": jsonable_encoder(decoded_data["sub"])})
     new_ref_token = AccessToken.create_refresh_token(data={"sub": jsonable_encoder(decoded_data["sub"])})
-    await write_to_redis("refresh_token", new_ref_token, decoded_data["sub"])
-    await write_to_redis("access_token", new_acc_token, decoded_data["sub"])
+    await write_to_redis(refresh_token=[new_ref_token, jsonable_encoder(decoded_data["sub"])],
+                         access_token=[new_acc_token, jsonable_encoder(decoded_data["sub"])])
     return {"access_token": new_acc_token, "refresh_token": new_ref_token, "token_type": "bearer",
             "access_token_expiration": datetime.utcnow()+timedelta(minutes=30),
             "refresh_token_expiration": datetime.utcnow()+timedelta(days=30)}
