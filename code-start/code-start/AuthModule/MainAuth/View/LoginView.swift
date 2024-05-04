@@ -71,8 +71,17 @@ class LoginView: UIView {
         return view
     }()
 
-    private lazy var greenCircle: CircleBackgroundView = {
-        let view = CircleBackgroundView()
+//    private lazy var greenCircle: CircleBackgroundView = {
+//        let view = CircleBackgroundView()
+//        view.translatesAutoresizingMaskIntoConstraints = false
+//        view.heightAnchor.constraint(equalToConstant: 300).isActive = true
+//        view.widthAnchor.constraint(equalToConstant: 300).isActive = true
+//        view.backgroundColor = #colorLiteral(red: 0.02962492779, green: 0.386751771, blue: 0.3660313189, alpha: 1)
+//        return view
+//    }()
+
+    private lazy var greenCircle: ScrollLabel = {
+        let view = ScrollLabel()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 300).isActive = true
         view.widthAnchor.constraint(equalToConstant: 300).isActive = true

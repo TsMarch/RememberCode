@@ -17,7 +17,7 @@ class ProfileViewController: UIViewController {
     }
 
     @objc func authViewTapped() {
-        let loginViewController = LoginViewController()
-        self.navigationController?.pushViewController(loginViewController, animated: true)
+        let authViewController = AuthViewController()
+        self.navigationController?.pushViewController(authViewController, animated: true)
     }
 }
