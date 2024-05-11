@@ -1,16 +1,16 @@
 import json
 from datetime import datetime, timedelta
-from typing import Annotated, Optional, Any, List, Type, Tuple, Dict
+from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException, Header, Query
+from fastapi import APIRouter, Depends, HTTPException, Header
 from fastapi.encoders import jsonable_encoder
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth import security_utils, user_utils
 from api.auth.database import get_async_session
-from api.auth.schemas import User, Token, UserReg
-from api.auth.security import AccessToken, oauth2_scheme
+from api.auth.schemas import User
+from api.auth.security import AccessToken
 
 router = APIRouter(
     prefix="/auth/jwt",

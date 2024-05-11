@@ -1,0 +1,100 @@
+1) How is memory managed in Python?
+
+Python memory is managed by Python private heap space. All Python objects and data structures are located in a private heap. The programmer does not have an access to this private heap, and the interpreter takes care of this Python private heap. The allocation of Python heap space for Python objects is done by the Python memory manager. The core API gives access to some tools for the programmer to code. Python also has an inbuilt garbage collector, which recycles all the unused memory and frees the memory and makes it available to the heap space.
+
+2) What are Python decorators?
+
+A Python decorator is a specific change that we make in Python syntax to alter functions easily.
+
+3) What is the difference between list and tuple?
+
+The difference between list and tuple is that list is mutable while tuple is not. Tuple can be hashed, for example., as a key for dictionaries.
+
+4) How are arguments passed by value or by reference?
+
+Everything in Python is an object, and all variables hold references to the objects. The reference values are according to the functions. Therefore, you cannot change the value of the references. However, you can change the objects if it is mutable.
+
+5) What is Dict and List comprehensions are?
+
+They are syntax constructions to ease the creation of a Dictionary or List based on existing iterable.
+
+6) What are built-in type does python provides?
+
+Python provides two built-in types: 1) Mutable and 2) Immutable. 
+Mutable built-in types are: List; Sets; Dictionaries; Immutable built-in types; Strings; Tuples; Numbers 
+
+7) Explain namespace in Python
+
+In Python, every name introduced has a place where it lives and can be hooked for. This is known as a namespace. It is like a box where a variable name is mapped to the object placed. Whenever the variable is searched out, this box will be searched to get the corresponding object.
+
+8) What is lambda in Python?
+
+It is a single expression anonymous function often used as inline function.
+
+9) Why lambda forms in python do not have statements?
+
+A lambda form in python does not have statements as it is used to make new function object and then return them at runtime.
+
+10) Explain pass in Python
+
+Pass means no-operation Python statement, or in other words, it is a place holder in a compound statement, where there should be a blank left, and nothing has to be written there.
+
+11) In Python what are iterators?
+
+In Python, iterators are used to iterate a group of elements, containers like a list.
+
+12) What is the unittest in Python?
+
+A unit testing framework in Python is known as unittest. It supports sharing of setups, automation testing, shutdown code for tests, aggregation of tests into collections, etc.
+
+13) Explain slicing in Python?
+
+A mechanism to select a range of items from sequence types like list, tuple, strings etc., is known as slicing.
+
+14) What are generators in Python?
+
+The way of implementing iterators are known as generators. It is a normal function except that it yields expression in the function.
+
+15) What is docstring in Python?
+
+A Python documentation string is known as docstring, it is a way of documenting Python functions, modules, and classes.
+
+16) How can you copy an object in Python?
+
+To copy an object in Python, you can try a copy.copy () or copy.deepcopy() for the general case. You cannot copy all objects but most of them.
+
+17) What is negative index in Python?
+
+Python sequences can be index in positive and negative numbers. For positive index, 0 is the first index, 1 is the second index, and so forth. For the negative index, (-1) is the last index, and (-2) is the second last index, and so forth.
+
+18) How can you convert a number to a string?
+
+In order to convert a number into a string, use the inbuilt function str(). If you want a octal or hexadecimal representation, use the inbuilt function oct() or hex().
+
+19) What is the difference between xrange and range?
+
+Xrange returns the xrange object while range returns the list and uses the same memory and no matter what the range size is.
+
+20) What is module and package in Python?
+
+In Python, module is the way to structure a program. Each Python program file is a module, which imports other modules like objects and attributes. The folder of Python program is a package of modules. A package can have modules or subfolders.
+
+21) What are the rules for local and global variables in Python?
+
+Here are the rules for local and global variables in Python: Local variables: If a variable is assigned a new value anywhere within the function’s body, it’s assumed to be local. Global variables: Those variables that are only referenced inside a function are implicitly global.
+
+22) How can you share global variables across modules?
+
+To share global variables across modules within a single program, create a special module. Import the config module in all modules of your application. The module will be available as a global variable across modules.
+
+23) Explain how to delete a file in Python?
+
+By using a command os.remove (filename) or os.unlink(filename)
+
+24) What is the use of // operator in Python?
+
+It is a Floor Divisionoperator, which is used for dividing two operands with the result as a quotient showing only digits before the decimal point. For instance, 10//5 = 2 and 10.0//5.0 = 2.0.
+
+25) Mention the use of the split function in Python
+
+The use of the split function in Python is that it breaks a string into shorter strings using the defined separator. It gives a list of all words present in the string.
