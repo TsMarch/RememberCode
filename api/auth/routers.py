@@ -1,4 +1,3 @@
-import json
 from datetime import datetime, timedelta
 from typing import Annotated, Any
 
@@ -43,8 +42,7 @@ async def login_for_access_token(
 
 
 @router.post("/refresh")
-async def refresh(refresh_token: Annotated[str, Header()],
-                  session: AsyncSession = Depends(get_async_session)):
+async def refresh(refresh_token: Annotated[str, Header()]):
     refresh_token = await security_utils.get_new_token(refresh_token)
     return refresh_token
 

@@ -62,7 +62,6 @@ async def get_from_redis(token: Annotated[str, Depends(oauth2_scheme)],
     (value in redis) are equal.
     """
     check_token_db = await url_connection_redis_acc.exists(token)
-    print(token)
     match check_token_db:
         case 1:
             user_id = await url_connection_redis_acc.get(token)

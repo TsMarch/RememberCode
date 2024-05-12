@@ -54,3 +54,4 @@ async def get_user_by_id(user_id: str, session: AsyncSession = Depends(get_async
               )
 async def promote_user(update_user: Annotated[User, Depends(user_utils.update_user_utils)]):
     return update_user
+

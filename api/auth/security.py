@@ -12,7 +12,7 @@ ALGORITHM = "HS256"
 
 router = APIRouter()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/jwt/token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
