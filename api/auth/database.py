@@ -5,7 +5,8 @@ import redis.asyncio
 from api.config import (DB_POSTGRES_HOST, DB_POSTGRES_USER, DB_POSTGRES_PASS, DB_POSTGRES_NAME, DB_POSTGRES_PORT,
                         REDIS_HOST)
 
-DATABASE_URL = f"postgresql+asyncpg://{DB_POSTGRES_USER}:{DB_POSTGRES_PASS}@{DB_POSTGRES_HOST}:{DB_POSTGRES_PORT}/{DB_POSTGRES_NAME}"
+DATABASE_URL = (f"postgresql+asyncpg://{DB_POSTGRES_USER}:{DB_POSTGRES_PASS}@{DB_POSTGRES_HOST}:{DB_POSTGRES_PORT}"
+                f"/{DB_POSTGRES_NAME}")
 
 
 engine = create_async_engine(DATABASE_URL, echo=True)
@@ -18,10 +19,9 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
-url_connection_redis = redis.asyncio.Redis(host=REDIS_HOST, port=6379, db=1, decode_responses=True)
-
-url_connection_redis_blacklist = redis.asyncio.Redis(host=REDIS_HOST, port=6379, db=0, decode_responses=True)
-
-url_connection_redis_acc = redis.asyncio.Redis(host=REDIS_HOST, port=6379, db=2, decode_responses=True)
-
+class RedisConnection:
+    @staticmethod
+    def url_connection(db: int) -> redis.asyncio.Redis:
+        url_connection_redis = redis.asyncio.Redis(host=REDIS_HOST, port=6379, db=db, decode_responses=True)
+        return url_connection_redis
 

@@ -1,7 +1,9 @@
-from typing import Annotated
+from uuid import UUID
 
 import sqlalchemy.exc
+from typing import Annotated
 from fastapi import Depends, HTTPException
+from pydantic import EmailStr
 from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,7 +14,7 @@ from api.auth.schemas import User as UserSchema
 from api.auth.security import Hash, oauth2_scheme, AccessToken
 
 
-async def add_user(session: AsyncSession, nickname: str, email: str, password: str) -> UserSchema | HTTPException:
+async def add_user(session: AsyncSession, nickname: str, email: EmailStr, password: str) -> UserSchema | HTTPException:
     new_user = UserModel(nickname=nickname, email=email, hashed_password=Hash.get_password_hash(password))
     try:
         session.add(new_user)
@@ -44,13 +46,13 @@ async def get_hashed_password(session: AsyncSession, nickname: str) -> UserSchem
     return result[0]
 
 
-async def get_user_by_id(session: AsyncSession, user_id: str) -> UserSchema | None:
+async def get_user_by_id(session: AsyncSession, user_id: UUID) -> UserSchema | None:
     try:
         query = await session.execute(
             select(UserModel).where(UserModel.id == user_id)
         )
     except sqlalchemy.exc.DBAPIError:
-        raise HTTPException(status_code=422, detail="Invalid UUID")
+        raise HTTPException(status_code=422, detail="Something wrong with db query")
     result = query.fetchone()
     if result is None:
         raise HTTPException(400, detail="Not found")

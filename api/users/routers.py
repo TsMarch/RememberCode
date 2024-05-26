@@ -1,12 +1,12 @@
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, Header
+from fastapi import APIRouter, Depends
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth import security_utils, user_utils
 from api.auth.database import get_async_session
-from api.auth.schemas import User, UserReg
+from api.auth.schemas import User, UserAdditional
 
 
 router = APIRouter(
@@ -17,17 +17,15 @@ router = APIRouter(
 
 @router.post("/registration/", response_model=User | dict
              )
-async def add_user(user: UserReg, session: AsyncSession = Depends(get_async_session)):
+async def add_user(user: User, session: AsyncSession = Depends(get_async_session)):
     user = await user_utils.add_user(session, user.nickname, user.email, user.hashed_password)
     return user
 
 
-@router.post("/me", response_model=User | Any,
-             response_model_exclude={"hashed_password", "nickname", "disabled", "email"}
+@router.post("/me", response_model=UserAdditional | Any,
+             response_model_exclude={"hashed_password"}
              )
-async def read_users_me(current_user: Annotated[User, Depends(security_utils.get_from_redis)],
-                        session: AsyncSession = Depends(get_async_session),
-                        refresh_token: Annotated[str | None, Header()] = None):
+async def read_users_me(current_user: Annotated[User, Depends(security_utils.get_from_redis)]):
     return current_user
 
 
