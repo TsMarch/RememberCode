@@ -16,7 +16,7 @@ services:
     container_name: redis_app
     command: redis-server
     ports:
-      - "5370:6379"
+      - "6379:6379"
     environment:
       - REDIS_PORT=5370
       - REDIS_DATABASES=16

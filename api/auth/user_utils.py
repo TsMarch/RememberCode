@@ -1,5 +1,3 @@
-from uuid import UUID
-
 import sqlalchemy.exc
 from typing import Annotated
 from fastapi import Depends, HTTPException
@@ -8,7 +6,7 @@ from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.auth.databases_helper import get_async_session
+from api.databases_helper import db_user_helper
 from api.auth.models import User as UserModel
 from api.auth.schemas import User as UserSchema
 from api.auth.security import Hash, oauth2_scheme, AccessToken
@@ -72,7 +70,7 @@ async def authenticate_user(session: AsyncSession, nickname: str, password: str)
 
 
 async def update_user_utils(token: Annotated[str, Depends(oauth2_scheme)],
-                            session: AsyncSession = Depends(get_async_session)) -> bool | dict:
+                            session: AsyncSession = Depends(db_user_helper.get_async_session)) -> bool | dict:
     user_id = await AccessToken.verify_access_token(token)
     promotion = await session.execute(
         update(UserModel).where(UserModel.id == user_id["sub"]).values(user_level="upper")
@@ -89,7 +87,7 @@ async def update_user_utils(token: Annotated[str, Depends(oauth2_scheme)],
 
 
 async def get_current_users_token(token: Annotated[str, Depends(oauth2_scheme)],
-                                  session: AsyncSession = Depends(get_async_session)) -> str | None:
+                                  session: AsyncSession = Depends(db_user_helper.get_async_session)) -> str | None:
     decoded_data = await AccessToken.verify_access_token(token)
     if not decoded_data:
         raise HTTPException(status_code=400, detail="Упал на декодировке")
@@ -100,7 +98,7 @@ async def get_current_users_token(token: Annotated[str, Depends(oauth2_scheme)],
 
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)],
-                           session: AsyncSession = Depends(get_async_session)) -> UserSchema | None:
+                           session: AsyncSession = Depends(db_user_helper.get_async_session)) -> UserSchema | None:
     decoded_data = await AccessToken.verify_access_token(token)
     if not decoded_data:
         raise HTTPException(status_code=400, detail="Token credentials error")

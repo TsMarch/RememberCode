@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth import security_utils, user_utils
-from api.auth.databases_helper import get_async_session
+from api.databases_helper import db_user_helper
 from api.auth.schemas import User
 from api.auth.security import AccessToken
 
@@ -29,7 +29,7 @@ async def logout(token: Annotated[User, Depends(user_utils.get_current_users_tok
 @router.post("/token")
 async def login_for_access_token(
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-        session: AsyncSession = Depends(get_async_session)
+        session: AsyncSession = Depends(db_user_helper.get_async_session)
 ):
     user = await user_utils.authenticate_user(session, form_data.username, form_data.password)
     access_token = AccessToken.create_access_token(data={"sub": jsonable_encoder(user.id)})

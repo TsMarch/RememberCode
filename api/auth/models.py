@@ -5,7 +5,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, declared_attr
 
 from pydantic import EmailStr
 
-from api.auth.databases_helper import engine
+from api.databases_helper import db_user_helper
 
 
 class Base(DeclarativeBase):
@@ -20,14 +20,14 @@ class Base(DeclarativeBase):
 
 class User(Base):
 
-    nickname: Mapped[str] = mapped_column(String(length=20), unique=True, nullable=False)
-    email: Mapped[EmailStr] = mapped_column(String(length=320), unique=True, nullable=False)
-    hashed_password: Mapped[str] = mapped_column(String(length=1024), nullable=False)
-    user_level: Mapped[str] = mapped_column(String(length=20), default="Beginner", nullable=False)
-    disabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    is_premium: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    nickname: Mapped[str] = mapped_column(String(length=20), unique=True)
+    email: Mapped[EmailStr] = mapped_column(String(length=320), unique=True)
+    hashed_password: Mapped[str] = mapped_column(String(length=1024))
+    user_level: Mapped[str] = mapped_column(String(length=20), default="Beginner")
+    disabled: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_premium: Mapped[bool] = mapped_column(Boolean, default=False)
 
 
 async def create_tables():
-    async with engine.begin() as conn:
+    async with db_user_helper.engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

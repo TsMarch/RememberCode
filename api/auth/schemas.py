@@ -1,5 +1,5 @@
 from uuid import UUID
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 from typing import Annotated, Optional
 
 
@@ -10,6 +10,7 @@ class Token(BaseModel):
 
 
 class User(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     nickname: str
     email: EmailStr
     hashed_password: Annotated[str, Field(exclude=True)]

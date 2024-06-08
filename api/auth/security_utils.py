@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.auth.databases_helper import RedisConnection, get_async_session
+from api.databases_helper import RedisConnection, redis_helper, db_user_helper
 from api.auth.security import oauth2_scheme, AccessToken
 from api.auth.user_utils import get_user_by_id
 
@@ -14,11 +14,12 @@ async def delete_token(*args):
     token = args[1]
     match args[0]:
         case "refresh_token":
-            result = await RedisConnection.url_connection(1).delete(token)
+            result = await redis_helper.redis_connection(1).delete(token)
             if not result:
-                await RedisConnection.url_connection(1).aclose()
+                await redis_helper.redis_connection(1).aclose()
                 return {"status": "no such token"}
-            await RedisConnection.url_connection(1).aclose()
+            await redis_helper.redis_connection(1).aclose()
+            return {"status": "refresh_token deleted"}
         case "access_token":
             result = await RedisConnection.url_connection(2).delete(token)
             if not result:
@@ -55,7 +56,7 @@ async def check_blacklist(token):
 
 
 async def get_from_redis(token: Annotated[str, Depends(oauth2_scheme)],
-                         session: AsyncSession = Depends(get_async_session)):
+                         session: AsyncSession = Depends(db_user_helper.get_async_session)):
     """
     This function decodes the token, then passing subjects uuid key to redis, and finally checks if tokens
     (value in redis) are equal.
