@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.auth.database import RedisConnection, get_async_session
+from api.auth.databases_helper import RedisConnection, get_async_session
 from api.auth.security import oauth2_scheme, AccessToken
 from api.auth.user_utils import get_user_by_id
 

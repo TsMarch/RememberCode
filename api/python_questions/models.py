@@ -2,7 +2,7 @@ from sqlalchemy import String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
-from api.auth.database import engine
+from api.auth.databases_helper import engine
 
 
 class Base(DeclarativeBase):

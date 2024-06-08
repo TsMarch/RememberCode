@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.auth.database import get_async_session
+from api.auth.databases_helper import get_async_session
 from api.python_questions.questions_utils import get_all_questions
 from fastapi import APIRouter, Depends
 

@@ -8,7 +8,7 @@ from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.auth.database import get_async_session
+from api.auth.databases_helper import get_async_session
 from api.auth.models import User as UserModel
 from api.auth.schemas import User as UserSchema
 from api.auth.security import Hash, oauth2_scheme, AccessToken
@@ -46,7 +46,7 @@ async def get_hashed_password(session: AsyncSession, nickname: str) -> UserSchem
     return result[0]
 
 
-async def get_user_by_id(session: AsyncSession, user_id: UUID) -> UserSchema | None:
+async def get_user_by_id(session: AsyncSession, user_id: str) -> UserSchema | None:
     try:
         query = await session.execute(
             select(UserModel).where(UserModel.id == user_id)
