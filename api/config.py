@@ -34,4 +34,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-print(settings.redis.host, settings.redis.port)

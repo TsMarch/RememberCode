@@ -22,7 +22,7 @@ async def add_user(user: User, session: AsyncSession = Depends(db_user_helper.ge
     return user
 
 
-@router.post("/me", response_model=UserAdditional,
+@router.post("/me", response_model=UserAdditional | dict,
              response_model_exclude={"hashed_password"}
              )
 async def read_users_me(current_user: Annotated[User, Depends(security_utils.get_from_redis)]):

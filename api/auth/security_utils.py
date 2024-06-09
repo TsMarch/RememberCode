@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.databases_helper import RedisConnection, redis_helper, db_user_helper
+from api.databases_helper import redis_helper, db_user_helper
 from api.auth.security import oauth2_scheme, AccessToken
 from api.auth.user_utils import get_user_by_id
 
@@ -14,22 +14,22 @@ async def delete_token(*args):
     token = args[1]
     match args[0]:
         case "refresh_token":
-            result = await redis_helper.redis_connection(1).delete(token)
+            result = await redis_helper.connection[1].delete(token)
             if not result:
-                await redis_helper.redis_connection(1).aclose()
+                await redis_helper.connection[1].close()
                 return {"status": "no such token"}
-            await redis_helper.redis_connection(1).aclose()
+            await redis_helper.connection[1].close()
             return {"status": "refresh_token deleted"}
         case "access_token":
-            result = await RedisConnection.url_connection(2).delete(token)
+            result = await redis_helper.connection[2].delete(token)
             if not result:
-                await RedisConnection.url_connection(2).aclose()
+                await redis_helper.connection[2].close()
                 return {"status": "no such token"}
-            await RedisConnection.url_connection(2).aclose()
+            await redis_helper.connection[2].close()
             return {"status": "token deleted"}
         case "all":
-            await RedisConnection.url_connection(1).flushall()
-            await RedisConnection.url_connection(1).aclose()
+            await redis_helper.connection[1].flushall()
+            await redis_helper.connection[1].close()
             return {"status": "deleted all tokens"}
         case _:
             return {"status": "нужно вставить тип токена который хочешь удалить (и сам токен). "
@@ -40,16 +40,16 @@ async def write_to_redis(**kwargs):
     for i in kwargs:
         match i:
             case "access_token":
-                await RedisConnection.url_connection(2).set(kwargs[i][0], kwargs[i][1], ex=1800)
+                await redis_helper.connection[2].set(kwargs[i][0], kwargs[i][1], ex=1800)
             case "refresh_token":
-                await RedisConnection.url_connection(1).set(kwargs[i][0], kwargs[i][1], ex=2592000)
-    await RedisConnection.url_connection(2).aclose()
-    await RedisConnection.url_connection(1).aclose()
+                await redis_helper.connection[1].set(kwargs[i][0], kwargs[i][1], ex=2592000)
+    await redis_helper.connection[2].close()
+    await redis_helper.connection[1].close()
 
 
 async def check_blacklist(token):
-    check = await RedisConnection.url_connection(0).get(token)
-    await RedisConnection.url_connection(0).aclose()
+    check = await redis_helper.connection[0].get(token)
+    await redis_helper.connection[0].close()
     if check:
         return True
     return False
@@ -61,25 +61,25 @@ async def get_from_redis(token: Annotated[str, Depends(oauth2_scheme)],
     This function decodes the token, then passing subjects uuid key to redis, and finally checks if tokens
     (value in redis) are equal.
     """
-    check_token_db = await RedisConnection.url_connection(2).exists(token)
+    check_token_db = await redis_helper.connection[2].exists(token)
     match check_token_db:
         case 1:
-            user_id = await RedisConnection.url_connection(2).get(token)
-            await RedisConnection.url_connection(2).aclose()
+            user_id = await redis_helper.connection[2].get(token)
+            await redis_helper.connection[2].aclose()
             user_data = await get_user_by_id(session, user_id)
             return user_data
         case 0:
-            await RedisConnection.url_connection(2).aclose()
+            await redis_helper.connection[2].close()
             return {"status": "no token in redis"}
 
 
 async def get_new_token(token):
     decoded_data = await AccessToken.verify_access_token(token)
-    check_token = await RedisConnection.url_connection(1).exists(token)
+    check_token = await redis_helper.connection[1].exists(token)
     if not check_token:
-        await RedisConnection.url_connection(1).aclose()
+        await redis_helper.connection[1].close()
         raise HTTPException(status_code=401)
-    await RedisConnection.url_connection(1).aclose()
+    await redis_helper.connection[1].close()
     await delete_token("refresh_token", token)
     new_acc_token = AccessToken.create_access_token(data={"sub": jsonable_encoder(decoded_data["sub"])})
     new_ref_token = AccessToken.create_refresh_token(data={"sub": jsonable_encoder(decoded_data["sub"])})
