@@ -1,8 +1,6 @@
-from redis.asyncio import Redis
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 import redis.asyncio
-from api.config import (settings,
-                        REDIS_HOST)
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from api.config import settings
 
 
 class DatabaseUser:

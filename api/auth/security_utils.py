@@ -57,10 +57,6 @@ async def check_blacklist(token):
 
 async def get_from_redis(token: Annotated[str, Depends(oauth2_scheme)],
                          session: AsyncSession = Depends(db_user_helper.get_async_session)):
-    """
-    This function decodes the token, then passing subjects uuid key to redis, and finally checks if tokens
-    (value in redis) are equal.
-    """
     check_token_db = await redis_helper.connection[2].exists(token)
     match check_token_db:
         case 1:
