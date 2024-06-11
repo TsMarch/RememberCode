@@ -25,7 +25,7 @@ class PostgresSettings(BaseModel):
 
 class RedisSettings(BaseModel):
     port: int = REDIS_PORT
-    host: str = "localhost"
+    host: str = REDIS_HOST
 
 
 class Settings(BaseSettings):

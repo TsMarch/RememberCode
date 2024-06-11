@@ -1,3 +1,4 @@
+from typing import Annotated
 from uuid import UUID
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
@@ -12,7 +13,7 @@ class User(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     nickname: str = Field(max_length=10)
     email: EmailStr
-    _hashed_password: str
+    hashed_password: Annotated[str, Field(exclude=True)]
     _id: UUID
 
 
