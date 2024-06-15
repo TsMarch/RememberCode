@@ -5,9 +5,9 @@ from fastapi import Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.databases_helper import redis_helper, db_user_helper
-from api.auth.security import oauth2_scheme, AccessToken
+from api.auth.security import AccessToken, oauth2_scheme
 from api.auth.user_utils import get_user_by_id
+from api.databases_helper import db_user_helper, redis_helper
 
 
 async def delete_token(*args):
@@ -32,17 +32,23 @@ async def delete_token(*args):
             await redis_helper.connection[1].close()
             return {"status": "deleted all tokens"}
         case _:
-            return {"status": "нужно вставить тип токена который хочешь удалить (и сам токен). "
-                              "Можно полностью дропнуть redis (all)"}
+            return {
+                "status": "нужно вставить тип токена который хочешь удалить (и сам токен). "
+                "Можно полностью дропнуть redis (all)"
+            }
 
 
 async def write_to_redis(**kwargs):
     for i in kwargs:
         match i:
             case "access_token":
-                await redis_helper.connection[2].set(kwargs[i][0], kwargs[i][1], ex=1800)
+                await redis_helper.connection[2].set(
+                    kwargs[i][0], kwargs[i][1], ex=1800
+                )
             case "refresh_token":
-                await redis_helper.connection[1].set(kwargs[i][0], kwargs[i][1], ex=2592000)
+                await redis_helper.connection[1].set(
+                    kwargs[i][0], kwargs[i][1], ex=2592000
+                )
     await redis_helper.connection[2].close()
     await redis_helper.connection[1].close()
 
@@ -55,8 +61,10 @@ async def check_blacklist(token):
     return False
 
 
-async def get_from_redis(token: Annotated[str, Depends(oauth2_scheme)],
-                         session: AsyncSession = Depends(db_user_helper.get_async_session)):
+async def get_from_redis(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: AsyncSession = Depends(db_user_helper.get_async_session),
+):
     check_token_db = await redis_helper.connection[2].exists(token)
     match check_token_db:
         case 1:
@@ -77,10 +85,20 @@ async def get_new_token(token):
         raise HTTPException(status_code=401)
     await redis_helper.connection[1].close()
     await delete_token("refresh_token", token)
-    new_acc_token = AccessToken.create_access_token(data={"sub": jsonable_encoder(decoded_data["sub"])})
-    new_ref_token = AccessToken.create_refresh_token(data={"sub": jsonable_encoder(decoded_data["sub"])})
-    await write_to_redis(refresh_token=[new_ref_token, jsonable_encoder(decoded_data["sub"])],
-                         access_token=[new_acc_token, jsonable_encoder(decoded_data["sub"])])
-    return {"access_token": new_acc_token, "refresh_token": new_ref_token, "token_type": "bearer",
-            "access_token_expiration": datetime.utcnow()+timedelta(minutes=30),
-            "refresh_token_expiration": datetime.utcnow()+timedelta(days=30)}
+    new_acc_token = AccessToken.create_access_token(
+        data={"sub": jsonable_encoder(decoded_data["sub"])}
+    )
+    new_ref_token = AccessToken.create_refresh_token(
+        data={"sub": jsonable_encoder(decoded_data["sub"])}
+    )
+    await write_to_redis(
+        refresh_token=[new_ref_token, jsonable_encoder(decoded_data["sub"])],
+        access_token=[new_acc_token, jsonable_encoder(decoded_data["sub"])],
+    )
+    return {
+        "access_token": new_acc_token,
+        "refresh_token": new_ref_token,
+        "token_type": "bearer",
+        "access_token_expiration": datetime.utcnow() + timedelta(minutes=30),
+        "refresh_token_expiration": datetime.utcnow() + timedelta(days=30),
+    }

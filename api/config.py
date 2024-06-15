@@ -1,7 +1,8 @@
-from pydantic_settings import BaseSettings
-from pydantic import BaseModel
-from dotenv import load_dotenv
 import os
+
+from dotenv import load_dotenv
+from pydantic import BaseModel
+from pydantic_settings import BaseSettings
 
 load_dotenv()
 
@@ -19,8 +20,10 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 
 
 class PostgresSettings(BaseModel):
-    url: str = (f"postgresql+asyncpg://{DB_POSTGRES_USER}:{DB_POSTGRES_PASS}@{DB_POSTGRES_HOST}:{DB_POSTGRES_PORT}"
-                f"/{DB_POSTGRES_NAME}")
+    url: str = (
+        f"postgresql+asyncpg://{DB_POSTGRES_USER}:{DB_POSTGRES_PASS}@{DB_POSTGRES_HOST}:{DB_POSTGRES_PORT}"
+        f"/{DB_POSTGRES_NAME}"
+    )
 
 
 class RedisSettings(BaseModel):

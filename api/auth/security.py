@@ -1,10 +1,11 @@
+from datetime import datetime, timedelta
+
 from fastapi import APIRouter
 from fastapi.security import OAuth2PasswordBearer
-from api.config import SECRET_KEY as SECRET
-from datetime import datetime, timedelta
 from jose import jwt
 from passlib.context import CryptContext
 
+from api.config import SECRET_KEY as SECRET
 
 SECRET_KEY = SECRET
 ALGORITHM = "HS256"

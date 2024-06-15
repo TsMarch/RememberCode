@@ -1,7 +1,8 @@
 from fastapi import HTTPException
-from api.python_questions.models import Questions
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from api.python_questions.models import Questions
 
 
 async def get_all_questions(session: AsyncSession):

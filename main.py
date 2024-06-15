@@ -3,13 +3,13 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from api.auth.models import create_tables as auth_table_creation
-from api.python_questions.models import create_tables as questions_tables_creation
-from api.python_questions.parser import parse
-
 from api.auth.routers import router as auth_router
-from api.users.routers import router as user_router
-from api.service.routers import router as service_router
+from api.python_questions.models import \
+    create_tables as questions_tables_creation
+from api.python_questions.parser import parse
 from api.python_questions.routers import router as python_router
+from api.service.routers import router as service_router
+from api.users.routers import router as user_router
 
 
 @asynccontextmanager
@@ -19,6 +19,7 @@ async def lifespan(app: FastAPI):
     parse()
     print("База готова к работе")
     yield
+
 
 app = FastAPI(lifespan=lifespan, title="RememberCode")
 
@@ -33,5 +34,3 @@ app.include_router(service_router, tags=["Service routers"])
 
 # Router for retrieving questions from mongodb
 app.include_router(python_router, tags=["Python questions"], prefix="/python_questions")
-
-

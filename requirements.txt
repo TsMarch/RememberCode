@@ -13,3 +13,5 @@ pandas
 redis
 python-jose[cryptography]==3.3.0
 passlib==1.7.4
+black
+isort

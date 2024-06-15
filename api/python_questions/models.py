@@ -1,7 +1,6 @@
 from sqlalchemy import String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-
 from api.databases_helper import db_user_helper
 
 
@@ -20,4 +19,3 @@ class Questions(Base):
 async def create_tables():
     async with db_user_helper.engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-
