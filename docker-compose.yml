@@ -9,6 +9,7 @@ services:
       - 5435
     env_file:
       - .env-non-dev
+    restart: unless-stopped
 
 
   redis:
@@ -20,6 +21,7 @@ services:
     environment:
       - REDIS_PORT=5370
       - REDIS_DATABASES=16
+    restart: unless-stopped
 
 
   app:
@@ -36,4 +38,4 @@ services:
     depends_on:
       - db
       - redis
-
+    restart: unless-stopped
