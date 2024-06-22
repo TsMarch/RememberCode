@@ -5,9 +5,33 @@ from fastapi import Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.auth.security import AccessToken, oauth2_scheme
+from api.auth import user_utils
+from api.auth.security import TokenCreator, TokenVerifier, oauth2_scheme
 from api.auth.user_utils import get_user_by_id
 from api.databases_helper import db_user_helper, redis_helper
+
+
+async def return_tokens(session, **kwargs):
+    user = await user_utils.authenticate_user(
+        session, kwargs["username"], kwargs["password"]
+    )
+    access_token = TokenCreator.create_access_token(
+        data={"sub": jsonable_encoder(user.id)}
+    )
+    refresh_token = TokenCreator.create_refresh_token(
+        data={"sub": jsonable_encoder(user.id)}
+    )
+    await write_to_redis(
+        refresh_token=[refresh_token, jsonable_encoder(user.id)],
+        access_token=[access_token, jsonable_encoder(user.id)],
+    )
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+        "access_token_expiration": datetime.utcnow() + timedelta(minutes=30),
+        "refresh_token_expiration": datetime.utcnow() + timedelta(days=30),
+    }
 
 
 async def delete_token(*args):
@@ -63,7 +87,7 @@ async def check_blacklist(token):
 
 async def get_from_redis(
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: AsyncSession = Depends(db_user_helper.get_async_session),
+    session: AsyncSession = Depends(db_user_helper.connection),
 ):
     check_token_db = await redis_helper.connection[2].exists(token)
     match check_token_db:
@@ -78,17 +102,17 @@ async def get_from_redis(
 
 
 async def get_new_token(token):
-    decoded_data = await AccessToken.verify_access_token(token)
+    decoded_data = await TokenVerifier.verify_access_token(token)
     check_token = await redis_helper.connection[1].exists(token)
     if not check_token:
         await redis_helper.connection[1].close()
         raise HTTPException(status_code=401)
     await redis_helper.connection[1].close()
     await delete_token("refresh_token", token)
-    new_acc_token = AccessToken.create_access_token(
+    new_acc_token = TokenCreator.create_access_token(
         data={"sub": jsonable_encoder(decoded_data["sub"])}
     )
-    new_ref_token = AccessToken.create_refresh_token(
+    new_ref_token = TokenCreator.create_refresh_token(
         data={"sub": jsonable_encoder(decoded_data["sub"])}
     )
     await write_to_redis(

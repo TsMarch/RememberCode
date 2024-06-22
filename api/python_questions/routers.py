@@ -9,7 +9,7 @@ router = APIRouter()
 
 @router.get("/", response_description="Questions retrieved")
 async def get_questions(
-    session: AsyncSession = Depends(db_user_helper.get_async_session),
+    session: AsyncSession = Depends(db_user_helper.connection),
 ):
     questions = await get_all_questions(session)
     return questions

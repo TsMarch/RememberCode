@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth.models import User as UserModel
 from api.auth.schemas import User as UserSchema
-from api.auth.security import AccessToken, Hash, oauth2_scheme
+from api.auth.security import Hash, TokenCreator, TokenVerifier, oauth2_scheme
 from api.databases_helper import db_user_helper
 
 
@@ -82,9 +82,9 @@ async def authenticate_user(
 
 async def update_user_utils(
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: AsyncSession = Depends(db_user_helper.get_async_session),
+    session: AsyncSession = Depends(db_user_helper.connection),
 ) -> bool | dict:
-    user_id = await AccessToken.verify_access_token(token)
+    user_id = await TokenVerifier.verify_access_token(token)
     promotion = await session.execute(
         update(UserModel)
         .where(UserModel.id == user_id["sub"])
@@ -103,9 +103,9 @@ async def update_user_utils(
 
 async def get_current_users_token(
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: AsyncSession = Depends(db_user_helper.get_async_session),
+    session: AsyncSession = Depends(db_user_helper.connection),
 ) -> str | None:
-    decoded_data = await AccessToken.verify_access_token(token)
+    decoded_data = await TokenVerifier.verify_access_token(token)
     if not decoded_data:
         raise HTTPException(status_code=400, detail="Упал на декодировке")
     user = await get_user_by_id(session, decoded_data["sub"])
@@ -116,9 +116,9 @@ async def get_current_users_token(
 
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: AsyncSession = Depends(db_user_helper.get_async_session),
+    session: AsyncSession = Depends(db_user_helper.connection),
 ) -> UserSchema | None:
-    decoded_data = await AccessToken.verify_access_token(token)
+    decoded_data = await TokenVerifier.verify_access_token(token)
     if not decoded_data:
         raise HTTPException(status_code=400, detail="Token credentials error")
     user = await get_user_by_id(session, decoded_data["sub"])

@@ -1,24 +1,31 @@
+from abc import ABC, abstractmethod
+
 import redis.asyncio
-from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
-                                    create_async_engine)
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from api.config import settings
 
 
-class DatabaseUser:
+class ConnectionAbstract(ABC):
+    @abstractmethod
+    def connection(self):
+        pass
+
+
+class PostgresqlConnection(ConnectionAbstract):
     def __init__(self, url: str, echo: bool = False):
         self.engine = create_async_engine(url=url, echo=echo)
         self.session_factory = async_sessionmaker(
             bind=self.engine, autoflush=False, expire_on_commit=False
         )
 
-    async def get_async_session(self) -> AsyncSession:
+    async def connection(self) -> AsyncSession:
         async with self.session_factory() as session:
             yield session
             await session.close()
 
 
-class MonostateRedisConnection:
+class MonostateRedisConnection(ConnectionAbstract):
     connection = {}
 
     def __init__(self, host: str, port: int):
@@ -35,7 +42,7 @@ class MonostateRedisConnection:
             )
 
 
-db_user_helper = DatabaseUser(url=settings.db.url)
+db_user_helper = PostgresqlConnection(url=settings.db.url)
 
 redis_helper = MonostateRedisConnection(
     host=settings.redis.host, port=settings.redis.port
