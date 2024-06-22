@@ -27,7 +27,7 @@ class Hash:
         return pwd_context.verify(password, hashed_password)
 
 
-class TokenCreator:
+class AccessToken:
     @staticmethod
     def create_access_token(data: dict):
         expire = datetime.utcnow() + timedelta(minutes=30)
@@ -44,8 +44,6 @@ class TokenCreator:
         encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
         return encoded_jwt
 
-
-class TokenVerifier:
     @staticmethod
     async def verify_access_token(token: str):
         try:

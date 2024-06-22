@@ -2,7 +2,8 @@ import uuid
 
 from pydantic import EmailStr
 from sqlalchemy import Boolean, String
-from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
+from sqlalchemy.orm import (DeclarativeBase, Mapped, declared_attr,
+                            mapped_column)
 
 from api.databases_helper import db_user_helper
 

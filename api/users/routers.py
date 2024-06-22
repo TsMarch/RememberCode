@@ -15,7 +15,7 @@ router = APIRouter(
 
 @router.post("/registration/", response_model=User)
 async def add_user(
-    user: User, session: AsyncSession = Depends(db_user_helper.connection)
+    user: User, session: AsyncSession = Depends(db_user_helper.get_async_session)
 ):
     user = await user_utils.add_user(
         session, user.nickname, user.email, user.hashed_password
@@ -41,7 +41,7 @@ async def read_users_me(
     response_model_exclude={"hashed_password", "id", "disabled", "is_premium"},
 )
 async def get_user_by_nickname(
-    nickname: str, session: AsyncSession = Depends(db_user_helper.connection)
+    nickname: str, session: AsyncSession = Depends(db_user_helper.get_async_session)
 ):
     check = await user_utils.get_user_by_nickname(session, nickname)
     return check
@@ -54,7 +54,7 @@ async def get_user_by_nickname(
     response_model_exclude={"hashed_password", "id", "disabled", "is_premium"},
 )
 async def get_user_by_id(
-    user_id: str, session: AsyncSession = Depends(db_user_helper.connection)
+    user_id: str, session: AsyncSession = Depends(db_user_helper.get_async_session)
 ):
     check = await user_utils.get_user_by_id(session, user_id)
     return check
