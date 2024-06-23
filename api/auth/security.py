@@ -5,6 +5,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from passlib.context import CryptContext
 
+from api.auth import security_utils
 from api.config import SECRET_KEY as SECRET
 
 SECRET_KEY = SECRET
@@ -27,7 +28,7 @@ class Hash:
         return pwd_context.verify(password, hashed_password)
 
 
-class AccessToken:
+class TokenCreation:
     @staticmethod
     def create_access_token(data: dict):
         expire = datetime.utcnow() + timedelta(minutes=30)
@@ -44,10 +45,14 @@ class AccessToken:
         encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
         return encoded_jwt
 
+
+class TokenVerifier:
     @staticmethod
-    async def verify_access_token(token: str):
+    async def verify_token(token_type: str = "access_token", **kwargs):
         try:
-            decoded_data = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            print(kwargs['token'])
+            decoded_data = jwt.decode(kwargs['token'], SECRET_KEY, algorithms=[ALGORITHM])
+            current_time = int(datetime.utcnow().timestamp())
             return decoded_data
         except Exception as e:
             return None

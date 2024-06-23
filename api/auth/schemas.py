@@ -1,3 +1,4 @@
+import datetime
 from typing import Annotated
 from uuid import UUID
 
@@ -6,8 +7,10 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 class Token(BaseModel):
     access_token: str
-    # refresh_token: str
-    token_type: str
+    refresh_token: str
+    token_type: str = Field("bearer")
+    access_token_expiration: datetime.datetime
+    refresh_token_expiration: datetime.datetime
 
 
 class User(BaseModel):

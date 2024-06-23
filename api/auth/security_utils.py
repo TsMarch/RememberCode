@@ -5,9 +5,39 @@ from fastapi import Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.auth.security import AccessToken, oauth2_scheme
+from api.auth import user_utils
+from api.auth.schemas import Token
+from api.auth.security import TokenCreation, TokenVerifier, oauth2_scheme
 from api.auth.user_utils import get_user_by_id
 from api.databases_helper import db_user_helper, redis_helper
+
+
+async def get_pair_of_tokens(**kwargs) -> Token:
+    if "refresh_token" in kwargs:
+        decoded_data = await TokenVerifier.verify_token(token_type='refresh_token', token=kwargs['refresh_token'])
+        check_token = await redis_helper.connection[1].exists(kwargs['refresh_token'])
+        if not check_token:
+            await redis_helper.connection[1].close()
+            raise HTTPException(status_code=401)
+        await redis_helper.connection[1].close()
+        await delete_token("refresh_token", kwargs['refresh_token'])
+        return await get_pair_of_tokens(user_id=decoded_data['sub'])
+    access_token = TokenCreation.create_access_token(
+        data={"sub": jsonable_encoder(kwargs["user_id"])}
+    )
+    refresh_token = TokenCreation.create_refresh_token(
+        data={"sub": jsonable_encoder(kwargs["user_id"])}
+    )
+    await write_to_redis(
+        refresh_token=[refresh_token, jsonable_encoder(kwargs["user_id"])],
+        access_token=[access_token, jsonable_encoder(kwargs["user_id"])],
+    )
+    return Token(
+        access_token=access_token,
+        refresh_token=refresh_token,
+        access_token_expiration=datetime.utcnow() + timedelta(minutes=30),
+        refresh_token_expiration=datetime.utcnow() + timedelta(days=30),
+    )
 
 
 async def delete_token(*args):
@@ -42,6 +72,10 @@ async def write_to_redis(**kwargs):
     for i in kwargs:
         match i:
             case "access_token":
+                print(kwargs[i][1])
+               # await redis_helper.connection[2].rpush(
+                #   kwargs[i][1], kwargs[i][0]
+                #)
                 await redis_helper.connection[2].set(
                     kwargs[i][0], kwargs[i][1], ex=1800
                 )
@@ -49,6 +83,7 @@ async def write_to_redis(**kwargs):
                 await redis_helper.connection[1].set(
                     kwargs[i][0], kwargs[i][1], ex=2592000
                 )
+
     await redis_helper.connection[2].close()
     await redis_helper.connection[1].close()
 
@@ -63,8 +98,9 @@ async def check_blacklist(token):
 
 async def get_from_redis(
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: AsyncSession = Depends(db_user_helper.get_async_session),
+    session: AsyncSession = Depends(db_user_helper.connection),
 ):
+    print(await TokenVerifier.verify_token(token))
     check_token_db = await redis_helper.connection[2].exists(token)
     match check_token_db:
         case 1:
@@ -75,30 +111,3 @@ async def get_from_redis(
         case 0:
             await redis_helper.connection[2].close()
             return {"status": "no token in redis"}
-
-
-async def get_new_token(token):
-    decoded_data = await AccessToken.verify_access_token(token)
-    check_token = await redis_helper.connection[1].exists(token)
-    if not check_token:
-        await redis_helper.connection[1].close()
-        raise HTTPException(status_code=401)
-    await redis_helper.connection[1].close()
-    await delete_token("refresh_token", token)
-    new_acc_token = AccessToken.create_access_token(
-        data={"sub": jsonable_encoder(decoded_data["sub"])}
-    )
-    new_ref_token = AccessToken.create_refresh_token(
-        data={"sub": jsonable_encoder(decoded_data["sub"])}
-    )
-    await write_to_redis(
-        refresh_token=[new_ref_token, jsonable_encoder(decoded_data["sub"])],
-        access_token=[new_acc_token, jsonable_encoder(decoded_data["sub"])],
-    )
-    return {
-        "access_token": new_acc_token,
-        "refresh_token": new_ref_token,
-        "token_type": "bearer",
-        "access_token_expiration": datetime.utcnow() + timedelta(minutes=30),
-        "refresh_token_expiration": datetime.utcnow() + timedelta(days=30),
-    }
