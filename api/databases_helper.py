@@ -33,13 +33,13 @@ class MonostateRedisConnection(AbstractConnection):
         self.__dict__ = self.connection
         if not self.connection:
             self.connection[1] = redis.asyncio.Redis(
-                host="localhost", port=port, db=1, decode_responses=True
+                host=host, port=port, db=1, decode_responses=True
             )
             self.connection[2] = redis.asyncio.Redis(
-                host="localhost", port=port, db=2, decode_responses=True
+                host=host, port=port, db=2, decode_responses=True
             )
             self.connection[0] = redis.asyncio.Redis(
-                host="localhost", port=port, db=0, decode_responses=True
+                host=host, port=port, db=0, decode_responses=True
             )
 
 
