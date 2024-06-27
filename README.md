@@ -16,4 +16,4 @@ This IOS application will allow developers of different levels (Junior, Middle, 
 # Programming languages, frameworks
 Swift, Python 3.11, FastAPI, SQLAlchemy, PostgreSQL, MongoDB, Beanie, Redis. View full req list -> requirements.txt
 
-# Work in progress, App Store release is planned for February 2024.
+# Work in progress, App Store release somewhere in 2024.
