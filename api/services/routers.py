@@ -5,7 +5,7 @@ from fastapi import APIRouter, Header, Query
 from api.auth import security_utils
 
 router = APIRouter(
-    prefix="/service",
+    prefix="/services",
     responses={404: {"description": "Not found"}},
 )
 

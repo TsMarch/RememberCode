@@ -9,8 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth.models import User as UserModel
 from api.auth.schemas import User as UserSchema
-from api.auth.security import Hash, TokenCreation, TokenVerifier, oauth2_scheme
-from api.databases_helper import db_user_helper
+from api.auth.security import Hash, TokenVerifier, oauth2_scheme
+from api.configs.database import db_user_helper
 
 
 async def add_user(

@@ -5,8 +5,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from passlib.context import CryptContext
 
-from api.auth import security_utils
-from api.config import SECRET_KEY as SECRET
+from api.configs.settings import SECRET_KEY as SECRET
 
 SECRET_KEY = SECRET
 ALGORITHM = "HS256"

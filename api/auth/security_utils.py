@@ -5,11 +5,10 @@ from fastapi import Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.auth import user_utils
 from api.auth.schemas import Token
 from api.auth.security import TokenCreation, TokenVerifier, oauth2_scheme
 from api.auth.user_utils import get_user_by_id
-from api.databases_helper import db_user_helper, redis_helper
+from api.configs.database import db_user_helper, redis_helper
 
 
 async def get_pair_of_tokens(**kwargs) -> Token:

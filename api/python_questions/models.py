@@ -1,7 +1,7 @@
 from sqlalchemy import String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-from api.databases_helper import db_user_helper
+from api.configs.database import db_user_helper
 
 
 class Base(DeclarativeBase):
