@@ -7,7 +7,7 @@ from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.auth.models import User as UserModel
+from api.auth.models.UserModel import User as UserModel
 from api.auth.schemas import User as UserSchema
 from api.auth.security import Hash, TokenVerifier, oauth2_scheme
 from api.configs.database import db_user_helper

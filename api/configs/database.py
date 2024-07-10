@@ -4,7 +4,7 @@ import redis.asyncio
 from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
                                     create_async_engine)
 
-from api.configs.settings import settings
+from api.configs.environment import settings
 
 
 class AbstractConnection(ABC):
@@ -45,8 +45,8 @@ class MonostateRedisConnection(AbstractConnection):
 
 db_user_helper = DatabaseUser(url=settings.db.url)
 
-redis_helper = MonostateRedisConnection(
-    host=settings.redis.host, port=settings.redis.port
-)
+#redis_helper = MonostateRedisConnection(
+ #   host=settings.redis.host, port=settings.redis.port
+#)
 #redis.asyncio.Redis.rpush()
 # ("redis://localhost:6379?decode_responses=True?db=1")

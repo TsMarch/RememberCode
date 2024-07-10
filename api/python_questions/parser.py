@@ -2,7 +2,7 @@ import pandas as pd
 import sqlalchemy
 import sqlalchemy.exc
 
-from api.configs.settings import (DB_POSTGRES_HOST, DB_POSTGRES_NAME, DB_POSTGRES_PASS,
+from api.configs.environment import (DB_POSTGRES_HOST, DB_POSTGRES_NAME, DB_POSTGRES_PASS,
                                   DB_POSTGRES_PORT, DB_POSTGRES_USER)
 
 
